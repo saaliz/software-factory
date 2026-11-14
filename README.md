@@ -1,0 +1,109 @@
+# Software factory
+
+A small kit for building software with coding agents so that the work is checked by scripts, the questions are answered by a council, and the tokens are counted. It is tool-neutral: Claude Code, Codex or any agent that reads a file.
+
+It comes from one real build (a 20-module system, 17 days, 34,700 model calls) and keeps only what that build measured. What is proven and what is not is said plainly below.
+
+## Two profiles on one core
+
+| | Light harness and strong skills | Harness |
+|---|---|---|
+| Who drives | One person, one session at a time | Scripts and one orchestrating session; workers fill slots |
+| Where the process lives | Six skills that load only when called | An orchestrator's prompt, a launch script, a script per lane, records |
+| Scripts | The gate, the seal, the token counter, and a way to ask another maker's model | Those, plus CI with a lock, budgets, hooks, a scaffold from designs |
+| Fits | One app or one module, a solo builder, starting today | Many modules, long unattended runs, two vendors, a team |
+| In this repository | **Yes: `light/`, installable now** | Not yet: `harness/README.md` says what is coming and why it waits |
+
+The core both share: one short entry file, the form of a brief, tests sealed before the build, the token counter, a handful of methods, and the council.
+
+## Start (the light profile)
+
+```bash
+node init.mjs path/to/your/project
+```
+
+It never overwrites a file. It writes `AGENTS.md` and `CLAUDE.md` if absent, `factory/` (methods, tools, forms, council seats, decisions), `.claude/skills/` (the council and five step skills) and `work/`. Then:
+
+1. Fill in `AGENTS.md`, sections 1 and 5 and rule 3.
+2. Fill in `factory/council/SEATS.md`; `factory/council/seats/` holds two worked examples.
+3. Read `factory/token-economy.md` once and do its six set-up steps.
+4. Start a work item with the `factory-spec` skill, one fresh session per step. `node factory/tools/gate.mjs work/NN-words` says what is next.
+
+Written for Node 20 or later and tested on Node 26. No packages to install.
+
+## A work item, start to finish
+
+| Step | Skill | Ends when a script prints |
+|---|---|---|
+| Spec | `factory-spec` | `tests may start` |
+| Sealed tests | `factory-sealed-tests` | `build may start` |
+| Build | `factory-build` | `the seal holds`, and the tests are green |
+| Review | `factory-review` | `release may start` |
+| Release | `factory-release` | `next: done` |
+
+Between the spec and the sealed tests, the spec's gaps go to a panel. A review that is not clear sends the work item back to the build, then to a fresh review.
+
+A session's report is a claim; the gate and the seal are the check. The tests are written and sealed by a session that does not build, and a builder that edits one turns the gate red.
+
+## The council
+
+One skill, three sizes, so a question gets the smallest sitting that answers it:
+
+| Size | For | Cost on the first project, new input plus output |
+|---|---|---|
+| Ruling | one small point | no session |
+| Panel of three experts | a batch of gaps in one area | 115,000 to 150,000 tokens, 5 to 6 minutes |
+| Council of the project's seats, plus an outsider | what to build next; a change to process or architecture | 120,000 to 170,000 with one voice; 225,000 to 430,000 with a helper per seat; the outsider adds 67,000 as a helper, or about 1,200 of a free outside model's own |
+
+Each project names its own seats in one file: a seat is a person with an ordinary day, a question they always ask, and a stated say. A full council also hears an outsider, who is given only a neutral summary, and ends in one next move with the check that shows it is done. The outsider can be a helper, or another maker's free model through OpenRouter (`node factory/tools/outside.mjs --list` shows today's; set `OPENROUTER_API_KEY` in your own shell). The script sends the summary and nothing else. The seats are voiced by a model, so every decision file says so and marks what a real person should confirm.
+
+## Token economy
+
+Tokens spent are calls multiplied by context, so nearly all spend is re-reading. The rules in `AGENTS.md` follow from five measurements, in `core/token-economy.md`. Read your own with:
+
+```bash
+node factory/tools/tokens.mjs --by session
+```
+
+## Other authors' skills
+
+The kit copies none. `core/methods/README.md` maps each job to one skill from Addy Osmani's agent-skills and from gstack, and says which to leave off. Eight of the kit's methods are adapted from Matt Pocock's skills; see `THIRD-PARTY.md`.
+
+## What is proven, and what is not
+
+| | State |
+|---|---|
+| Tests sealed by a session that does not build, checked by a gate | Used on the first project's last two releases and every package since; it caught real faults before they merged |
+| Counting tokens from the agents' own files | Used daily; this kit's counter is a rewrite, tested here |
+| One step per fresh session | Measured: a median of 146,000 tokens a call, against 372,000 for one long session |
+| Panels and councils voiced by one session | 16 sittings on the first project |
+| The light profile as a whole | Run end to end once, on a small trial work item (below). **Not yet run on a real project** |
+| The harness: chains, headless workers, hooks | **Built in part, not yet proven; not in this repository** |
+
+## The kit's own trial
+
+One work item, "total an invoice", 8 criteria, on a 30-line library, each step in a fresh session reading only its skill.
+
+| Step | Model tier | Seconds | New input plus output |
+|---|---|---|---|
+| Spec | high | 59 | 83,965 |
+| Panel on 5 gaps | middle | 52 | 85,247 |
+| Sealed tests | high | 177 | 71,177 |
+| Build | middle | 95 | 56,269 |
+| Review: not clear | high | 117 | 65,879 |
+| Build, after the review | middle | 43 | 51,562 |
+| Review: clear | high | 98 | 61,579 |
+| Release | low | 51 | 98,202 |
+| **All eight sessions** | | **692** | **573,880** |
+
+That is 71,735 new plus output tokens per criterion, 6.6 million tokens sent again, and an average of 82,000 tokens of context per call. The first review found a real fault the sealed tests had missed (a quantity that is not a number produced an invoice with no totals), the gate refused the release, and the work item went back to the build. Every session also reported where its skill's wording made it guess; those reports rewrote the skills you see here. A toy this small says the loop works, not what a real project costs.
+
+## Tests
+
+```bash
+node --test "light/tools/*.test.mjs" init.test.mjs
+```
+
+## Licence
+
+MIT. See `LICENSE` and `THIRD-PARTY.md`.

@@ -1,0 +1,35 @@
+---
+name: factory-spec
+description: First step of a work item. Write work/NN-words/item.md from the project's requirements until the gate says tests may start. Use when starting a new piece of work a person can see or do.
+---
+
+# Spec
+
+Follow `factory/methods/every-step.md`. Model: the high tier.
+
+## Read, and nothing more
+
+- `factory/item.md`, the form.
+- The requirements this work item draws on, by search, only the parts it needs.
+- The last work item's note, if this one continues it.
+
+## Do
+
+- Make the folder `work/NN-words/` with the next number, starting at 01, and cut a branch with the same name.
+- Write `item.md` from the form. Its title says, in a user's words, what a person will be able to do.
+- Copy each criterion word for word from the requirements: one line, starting `- `. A requirement stated outside a list (a signature, a shape, a unit) is a criterion too.
+- Keep it to something a person can see or do when it is released, at most 15 criteria. More means two work items: write the first, name the second in the note.
+- A requirement that is missing, unclear or in conflict is a gap: list the gaps in the note, numbered, each with your working answer. Do not invent a criterion, and do not run the council yourself: whoever started you sends the gaps to the council skill as a panel, before the sealed tests.
+
+## Done means
+
+- `node factory/tools/gate.mjs work/NN-words --can-start tests` prints `tests may start`.
+- Every criterion is found word for word in the requirements, checked by a fixed-string search (`grep -F`). The council may later add criteria that end `(answer N)`; those come from its decision file.
+
+## Commit
+
+`NN words: the spec — <how many criteria, what a person will be able to do>`
+
+## Note
+
+`1-spec.md` in the work item's folder: what the gate printed, the gaps and their working answers, anything risky about its size.
