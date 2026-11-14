@@ -30,12 +30,20 @@ THE LOOP, per module, run by its lane.
 5. Merge, then record: one line in `QUEUE.md` per release: criteria done, tokens by model, bounces, forecast.
 6. When every requirement of the module passes on the main branch, mark it done and go to 1.
 
-NEVER IDLE. Never end a turn with nothing in flight: before closing, at least one session, subagent or CI run is working, or `NOW.md` names what blocks every package and who unblocks it. The heartbeat (`factory/harness/heartbeat.md`) asks the same on a schedule: if nothing is working, start the next sealable or buildable package; if a step is stuck (a hung agent, a vendor limit, a stale slot), note it in `NOW.md` and act. A beat that finds work moving ends at once.
+NEVER IDLE, JUDGED BY MERGES. Never end a turn with nothing in flight: before closing, at least one session, subagent or CI run is working, or `NOW.md` names what blocks every package and who unblocks it. Activity is not progress: on the first project the line was busy for nine hours with one merge. So the heartbeat (`factory/harness/heartbeat.md`) asks of the merges: no merge in two hours, find why; a CI past 40 minutes, check it and stop it if hung; a job waiting over an hour, name its cause; a green CI with no merge, chase it; a stale slot, clear it. Each finding goes in `NOW.md` with what you did. A beat with no finding ends at once.
+
+SHARED SERVICES. A service every lane needs on the machine (a container engine, a database host) is restarted by you alone, never a lane, when it stops answering, by the steps `services` in `factory/harness.json` names, and recorded in `NOW.md`. On the first project one outage cost about 3.5 hours of every lane's runs.
+
+PROVEN STAYS PROVEN. A criterion is proven while its sealed test passes on the main branch, not because it passed once at its merge. Rerun every merged package's sealed tests on the main branch on a schedule, and give the date of the last rerun beside the count of criteria proven (`factory/harness/interfaces.md`, the sealed rerun; being built).
+
+A CHANGE TO THE PROCESS goes to a contrarian council, never straight in: first a study that measures (`factory/methods/throughput.md`), then a council whose seats each try to refute every proposal (`factory/council/process-change.md`), then a list of what needs the owner's word. Only what needs no word is yours to do.
 
 STARTING AND STEERING. Record a session in the lane's `sessions.md` before you start it. Every brief states one goal, the files to read, the files it may change, the model, its token budget, the commands that prove it, and the commit and ten-line note it leaves. A budget is an estimate to report against, never a hard stop. Workers use helpers only for narrow reading and never start sessions. Do not poll: you are woken when sessions finish. Steer the session that has the context; stop one that leaves its files or repeats a failure, and restart it smaller.
 
 COST. Plan, review and anything touching rights, safety, money or a send: the high tier. Sealed tests and the rest of the builds: the middle tier. Reading, searching and summarising output: the low tier. Read `factory/token-economy.md` once.
 
-PROOF. Before a step, the gate: `node factory/tools/gate.mjs work/<lane>/<package> --can-start tests|build|review|release`. CI only through the slot. The seal: `node factory/tools/seal.mjs work/<lane>/<package> --check`. A review: one fresh session, ideally the other vendor, writes "clear" or a named rule. A merge: you, then check the main branch yourself.
+MERGE FIRST. A package with a clear review and a green CI is merged before any new seal, build or test-writing in its lane; you merge a green candidate the turn its request arrives.
+
+PROOF. Before a step, the gate: `node factory/tools/gate.mjs work/<lane>/<package> --can-start tests|build|review|release`. CI only through the slot, from the main checkout's copy. Measure with `node factory/tools/throughput.mjs`. The seal: `node factory/tools/seal.mjs work/<lane>/<package> --check`. A review: one fresh session, ideally the other vendor, writes "clear" or a named rule. A merge: you, then check the main branch yourself.
 
 STOP only when the queue is empty, something reserved needs the owner, or a limit the owner set is reached. Then `NOW.md` says why and what comes next, and you tell the owner in plain words what is on the main branch, what is not, the numbers and the last commit.

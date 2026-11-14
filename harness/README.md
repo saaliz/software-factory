@@ -8,7 +8,7 @@ For many modules, long unattended runs, two vendors and a team. One **super orch
 node init.mjs path/to/your/project --profile harness
 ```
 
-It never overwrites a file. Beyond the light profile it writes `factory/harness.json`, `factory/harness/` (the super's rules, the lane brief and handover, the records' forms, the step briefs, the heartbeat), `factory/tools/slots.mjs`, `heartbeat.mjs` and `claim-super.mjs`, `factory/records/`, and `.claude/settings.json` naming this kit as a marketplace with the plugin on. Add `--marketplace <owner>/<repo>` to name a GitHub copy of the kit instead of this folder. Then:
+It never overwrites a file. Beyond the light profile it writes `factory/harness.json`, `factory/harness/` (the super's rules, the lane brief and handover, the records' forms, the step briefs, the heartbeat), `factory/tools/slots.mjs`, `side-by-side.mjs`, `heartbeat.mjs`, `throughput.mjs`, `sources.mjs` and `claim-super.mjs`, `factory/records/`, and `.claude/settings.json` naming this kit as a marketplace with the plugin on. Add `--marketplace <owner>/<repo>` to name a GitHub copy of the kit instead of this folder. Then:
 
 1. Fill in every `<…>` in `factory/harness.json`: the four sources (product, design, architecture, decisions and principles), the commands, the CI pattern, the vendors, any forbidden paths.
 2. In Claude Code, trust the folder, run `/plugin` and install `factory-harness` from the `software-factory` marketplace (or `claude plugin marketplace add <this kit>` and `claude plugin install factory-harness@software-factory`).
@@ -24,7 +24,7 @@ The gate, the scaffold and the contract tests depend on the stack: the kit ships
 | `plugin/agents/` | super, lane, test writer, builder, fresh reviewer, panel; each a few lines pointing to its brief |
 | `plugin/skills/` | `factory-super` (start or take over), `factory-lane` (start a lane), `factory-heartbeat` (one beat); each loads only when called |
 | `plugin/hooks/` | `guard.mjs`, five guards behind switches, and its tests |
-| `plugin/scripts/` | the slot script, the heartbeat script, the super's claim, and their tests; installed into `factory/tools/` |
+| `plugin/scripts/` | the slot script, the runner for test suites side by side, the heartbeat, the throughput measure, the sources check, the super's claim, and their tests; installed into `factory/tools/` |
 | `templates/` | `harness.json`, the super's rules, the lane brief and handover, the records, the heartbeat, the interfaces, and six step briefs |
 
 ## The hooks
@@ -49,18 +49,30 @@ node --test "harness/plugin/hooks/*.test.mjs" "harness/plugin/scripts/*.test.mjs
 
 ## What is proven, and what is not
 
-The harness generalizes how its first project runs today. Each part is in one of two states.
+The harness generalizes how its first project runs today. Each part is running there (measured once, or not yet measured), built here and not yet run, or being built.
 
 | Part | State |
 |---|---|
-| The super's rules: lanes, contract first and integration, sources, never idle, finish before starting, vendors and cover, the loop | Running on one project since 14 November 2026, not yet measured |
+| The super's rules: lanes, contract first and integration, sources, finish before starting, vendors and cover, the loop | Running on one project since 14 November 2026, not yet measured |
 | The lane brief and the lane handover | Running on one project since 14 November 2026, not yet measured |
+| Lane rule: merge first, and a green candidate reported at once | Running on one project since 14 November 2026, measured once: one merge in nine hours before it |
+| Lane rules: long questions in a committed questions file; a lane edits its own modules' designs; fill toward the cap; seal one ahead | Running on one project since 14 November 2026, not yet measured |
 | The step briefs: ready, panel, seam repairs, sealed tests, build, review | Running on one project since 14 November 2026, not yet measured |
-| The slot script | Running on one project since 14 November 2026, not yet measured; this generalized copy is tested here |
+| The slot script: one CI, a few heavy jobs, stale locks taken over | Running on one project since 14 November 2026, not yet measured; this generalized copy is tested here |
+| Slots: `ci --alone` and the waiting marker | Running on one project since 14 November 2026, measured once: before it, a CI waiting to run alone was passed by for 18.5 minutes |
+| Slots: run from the main checkout's copy | Running on one project since 14 November 2026, measured once: before it, a worktree's old copy held a CI back about 3 hours |
+| Slots: a log line per job, a 5-second poll, a waiting file per job | Running on one project since 14 November 2026, not yet measured |
+| `side-by-side.mjs`, test suites two at a time inside one CI | Running on one project since 14 November 2026, measured once: platform tests took 687 seconds against about 1,100 |
+| `throughput.mjs`: criteria an hour, seal to merge, slot waits and runs | Running on one project since 14 November 2026, not yet measured; this generalized copy is tested here |
+| `sources.mjs`, the sources step with a backlog; the scaffold's Source lines and new projects | Running on one project since 14 November 2026, not yet measured; the kit's check works by file, tested here, and the scaffold ships as its form only |
+| The super's heartbeat, judged by merges | Running on one project since 14 November 2026, measured once: one merge in nine hours while the earlier heartbeat said "moving" |
+| The durable schedule for the heartbeat (app task, Task Scheduler, cron) | Built, not yet run. The first project's check is a session-only timer |
+| Shared services restarted by the super alone | Running on one project since 14 November 2026, measured once: one outage cost about 3.5 hours of every lane's runs |
+| The contrarian council on a change to the process (`council/process-change.template.md`) | Running on one project since 14 November 2026, measured once: it checked fifteen of the study's figures and found seven wrong or loose |
+| The sealed rerun: every merged package's sealed tests rerun on the main branch | Being built on the first project, because "proven" had meant "passed once, at merge"; documented here only |
 | The gate, scaffold and contract tests, as interfaces | Running on one project since 14 November 2026, not yet measured, as that project's own code; the kit ships the form only |
 | The plugin: agents and skills | Built, not yet run |
 | The five hooks | Built, not yet run on a project. Tested here; the sealed-test and main-branch guards refused once each in a live headless session |
-| The durable heartbeat | Built, not yet run. The first project's check is a session-only timer |
 | `init.mjs --profile harness` | Built, not yet run on a project; tested here |
 
-Measured so far, on the first project: before the lanes, ten packages of about 25 criteria each merged in about 12 hours with Claude alone. Earlier, under the first version of the harness, no package merged in its first 41 hours, and a worker ran for at most 26 of 116 hours, mostly because each next step waited for a person: the heartbeat and never-idle rules come from that. What the lanes change has not been measured.
+Measured so far, on the first project: before the lanes, ten packages of about 25 criteria each merged in about 12 hours with Claude alone. Earlier, under the first version of the harness, no package merged in its first 41 hours, and a worker ran for at most 26 of 116 hours, mostly because each next step waited for a person: the heartbeat and never-idle rules come from that. With five lanes, on 14 November, the line ran at 15 criteria an hour, 28 in its best stretch, against a ceiling of about 34 the machine set (`core/methods/throughput.md`).

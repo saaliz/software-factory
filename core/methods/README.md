@@ -11,6 +11,7 @@ Each file is one method a skill or a brief names by path. The method holds the s
 | `review.md` | every review |
 | `handoff.md` | every final note |
 | `retro.md` | one short session after each release |
+| `throughput.md` | one session when the rate of criteria proven stalls, or before adding a lane or a machine |
 | `deep-modules.md` | anyone designing or judging an interface |
 | `questionnaire.md` | questions for the owner or a human expert |
 

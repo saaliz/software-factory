@@ -16,7 +16,7 @@ test('a fresh install writes the entry files, the skills, the methods and the to
   const { written, kept } = install(target);
   assert.equal(kept.length, 0);
   assert.equal(written.length, plan().length);
-  for (const f of ['AGENTS.md', 'CLAUDE.md', 'factory/tools/gate.mjs', 'factory/tools/seal.mjs', 'factory/tools/tokens.mjs', 'factory/methods/every-step.md',
+  for (const f of ['AGENTS.md', 'CLAUDE.md', 'factory/tools/gate.mjs', 'factory/tools/seal.mjs', 'factory/tools/tokens.mjs', 'factory/methods/every-step.md', 'factory/methods/throughput.md',
     'factory/council/SEATS.md', 'factory/decisions/README.md', 'work/README.md', 'work/.gitignore', '.claude/skills/council/SKILL.md', '.claude/skills/factory-build/SKILL.md']) {
     assert.ok(fs.existsSync(path.join(target, f)), f);
   }
@@ -102,7 +102,7 @@ test('the harness profile installs the light one and the harness, and the light 
   assert.equal(written.length, plan({ profile: 'harness' }).length);
   for (const f of ['AGENTS.md', 'factory/tools/gate.mjs', 'factory/harness.json', 'factory/harness/super-rules.md', 'factory/harness/lane-brief.md',
     'factory/harness/lane-handover.md', 'factory/harness/briefs/sealed-tests.md', 'factory/harness/briefs/build.md', 'factory/harness/briefs/review.md',
-    'factory/tools/slots.mjs', 'factory/tools/heartbeat.mjs', 'factory/tools/claim-super.mjs', 'factory/records/.gitignore', '.claude/settings.json']) {
+    'factory/tools/slots.mjs', 'factory/tools/side-by-side.mjs', 'factory/tools/throughput.mjs', 'factory/tools/sources.mjs', 'factory/council/process-change.md', 'factory/methods/throughput.md', 'factory/tools/heartbeat.mjs', 'factory/tools/claim-super.mjs', 'factory/records/.gitignore', '.claude/settings.json']) {
     assert.ok(fs.existsSync(path.join(target, f)), f);
   }
   assert.ok(!written.some((f) => f.endsWith('.test.mjs')));

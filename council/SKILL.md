@@ -53,7 +53,7 @@ Every gap gets an answer to build on, never "wait". Mark it **provisional** and 
 
 ## Write
 
-`factory/decisions/<date>-<words>.md` (today's date), in the form of `factory/council/decision.md`. Under "Read" list the files you read. End it `Confirmed by: not yet confirmed`: the chair or the owner writes that line.
+`factory/decisions/<date>-<words>.md` (today's date), in the form of `factory/council/decision.md`; for a change to the process, the contrarian form, `factory/council/process-change.md`. Under "Read" list the files you read. End it `Confirmed by: not yet confirmed`: the chair or the owner writes that line.
 
 Where the questions came from a work item whose tests are not yet sealed, change its `item.md` in two places and nowhere else:
 - under `## Answers`, one line naming this file;

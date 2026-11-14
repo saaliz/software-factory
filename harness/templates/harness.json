@@ -3,7 +3,7 @@
   "owner": "<the person who decides what is reserved: a name or a role>",
   "mainBranch": "main",
   "sources": {
-    "product": { "path": "<where the requirements live, e.g. docs/requirements/>", "cite": "by requirement id" },
+    "product": { "path": "<where the requirements live, e.g. docs/requirements/>", "cite": "by requirement id", "idPattern": "<a regular expression for a requirement id, e.g. REQ-\\d+>" },
     "design": { "path": "<where the designs live, e.g. docs/design/>", "cite": "by file and section, rule or endpoint" },
     "architecture": { "path": "<where the architecture lives, e.g. docs/architecture/>", "cite": "by file and section" },
     "decisions": { "path": "factory/decisions/", "cite": "by file; principles by number" }
@@ -20,8 +20,11 @@
   "ciPattern": "<a regular expression that matches the CI command, e.g. scripts/ci\\.mjs>",
   "slots": { "ci": 1, "heavy": 3 },
   "vendors": { "a": "<e.g. Claude>", "b": "<e.g. Codex, or the same vendor in a fresh context>" },
+  "sourcesCheck": { "code": ["<the folders of hand-written code, e.g. src/>"], "generatedMarker": "generated", "backlog": "factory/sources-backlog.txt" },
+  "services": [{ "name": "<a service every lane needs, e.g. the container engine>", "check": "<a command that answers when it is up>", "restart": "<the steps, in order, that only the super runs>" }],
   "forbiddenPaths": [],
   "hooks": { "sealedTests": true, "mainBranch": true, "ciThroughSlot": true, "forbiddenPaths": true, "largeContext": true },
   "largeContextTokens": 250000,
-  "heartbeatMinutes": 30
+  "heartbeatMinutes": 30,
+  "heartbeat": { "noMergeHours": 2, "ciHungMinutes": 40, "waitHours": 1 }
 }

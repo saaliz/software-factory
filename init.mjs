@@ -3,7 +3,7 @@
 //   node init.mjs <project folder> --dry-run  print what it would write
 //   node init.mjs <project folder> --profile harness [--marketplace <owner/repo>]
 //       the light profile plus the harness: factory/harness.json, factory/harness/ (the super's rules, the lane brief and
-//       handover, the step briefs), the slot, heartbeat and claim scripts, factory/records/, and .claude/settings.json
+//       handover, the step briefs), the slot, side-by-side, heartbeat and claim scripts, factory/records/, and .claude/settings.json
 //       naming the factory-harness plugin (only if absent; otherwise it prints what to add)
 // What it writes: AGENTS.md and CLAUDE.md (if absent), factory/ (methods, tools, forms, council seats, decisions),
 // .claude/skills/ (the council and the five step skills), and work/ with a .gitignore for each item's tmp folder.
@@ -62,6 +62,7 @@ export function plan({ profile = 'light', marketplace } = {}) {
     ['factory/token-economy.md', { from: 'core/token-economy.md' }],
     ['factory/council/SEATS.md', { from: 'council/SEATS.template.md' }],
     ['factory/council/decision.md', { from: 'council/decision.template.md' }],
+    ['factory/council/process-change.md', { from: 'council/process-change.template.md' }],
     ['factory/decisions/README.md', { text: DECISIONS_README }],
     ['work/README.md', { text: WORK_README }],
     ['work/.gitignore', { text: '# long output a step sends to a file; never committed\n*/tmp/\n' }],
