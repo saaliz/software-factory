@@ -24,7 +24,7 @@ The gate, the scaffold and the contract tests depend on the stack: the kit ships
 | `plugin/agents/` | super, lane, test writer, builder, fresh reviewer, panel; each a few lines pointing to its brief |
 | `plugin/skills/` | `factory-super` (start or take over), `factory-lane` (start a lane), `factory-heartbeat` (one beat); each loads only when called |
 | `plugin/hooks/` | `guard.mjs`, five guards behind switches, and its tests |
-| `plugin/scripts/` | the slot script, the runner for test suites side by side, the heartbeat, the throughput measure, the sources check, the super's claim, and their tests; installed into `factory/tools/` |
+| `plugin/scripts/` | the slot script, the runner for test suites side by side, the heartbeat, the throughput measure, the measure of who waited on whom, the sources check, the super's claim, and their tests; installed into `factory/tools/` |
 | `templates/` | `harness.json`, the super's rules, the lane brief and handover, the records, the heartbeat, the interfaces, and six step briefs |
 
 ## The hooks
@@ -64,10 +64,11 @@ The harness generalizes how its first project runs today. Each part is running t
 | Slots: a log line per job, a 5-second poll, a waiting file per job | Running on one project since 14 November 2026, not yet measured |
 | `side-by-side.mjs`, test suites two at a time inside one CI | Running on one project since 14 November 2026, measured once: platform tests took 687 seconds against about 1,100 |
 | `throughput.mjs`: criteria an hour, seal to merge, slot waits and runs | Running on one project since 14 November 2026, not yet measured; this generalized copy is tested here |
+| `waits.mjs`: every second a job waited for a slot, charged to what held it back (`core/methods/nobody-waits.md`) | Written on the first project on 15 November 2026 and run there once, on one day's log: builds waited 24.8 of 30.3 hours behind a running CI. A council found its first version hid 9.9 of those hours; corrected, and this generalized copy is tested here |
 | `sources.mjs`, the sources step with a backlog; the scaffold's Source lines and new projects | Running on one project since 14 November 2026, not yet measured; the kit's check works by file, tested here, and the scaffold ships as its form only |
 | The super's heartbeat, judged by merges | Running on one project since 14 November 2026, measured once: one merge in nine hours while the earlier heartbeat said "moving" |
 | The durable schedule for the heartbeat (app task, Task Scheduler, cron) | Built, not yet run. The first project's check is a session-only timer |
-| Shared services restarted by the super alone | Running on one project since 14 November 2026, measured once: one outage cost about 3.5 hours of every lane's runs |
+| Shared services restarted by the super alone | Running on one project since 14 November 2026, measured once: one outage cost about 30 minutes of every lane's runs and five red runs (first written here as 3.5 hours, a time zone misread that a later study corrected) |
 | The contrarian council on a change to the process (`council/process-change.template.md`) | Running on one project since 14 November 2026, measured once: it checked fifteen of the study's figures and found seven wrong or loose |
 | The sealed rerun: every merged package's sealed tests rerun on the main branch | Being built on the first project, because "proven" had meant "passed once, at merge"; documented here only |
 | The gate, scaffold and contract tests, as interfaces | Running on one project since 14 November 2026, not yet measured, as that project's own code; the kit ships the form only |

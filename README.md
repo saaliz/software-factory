@@ -10,7 +10,7 @@ It comes from one real build (a 20-module system, 17 days, 34,700 model calls) a
 |---|---|---|
 | Who drives | One person, one session at a time | A super orchestrator over lane orchestrators; workers are subagents |
 | Where the process lives | Six skills that load only when called | A Claude Code plugin (six agents, three skills, five hooks), the super's rules, a brief per step, records |
-| Scripts | The gate, the seal, the token counter, and a way to ask another maker's model | Those, plus machine slots for CI and heavy jobs, a runner for test suites side by side, a heartbeat judged by merges, a throughput measure, a sources check, and the interfaces of a scaffold and contract tests |
+| Scripts | The gate, the seal, the token counter, and a way to ask another maker's model | Those, plus machine slots for CI and heavy jobs, a runner for test suites side by side, a heartbeat judged by merges, a throughput measure, a measure of who waited on whom, a sources check, and the interfaces of a scaffold and contract tests |
 | Fits | One app or one module, a solo builder, starting today | Many modules, long unattended runs, two vendors, a team |
 | In this repository | **Yes: `light/`, installable now** | **Yes: `harness/`, installable now** with `--profile harness`; built, mostly not yet run outside its first project |
 
@@ -83,6 +83,7 @@ The kit copies none. `core/methods/README.md` maps each job to one skill from Ad
 | The harness's rules, lane brief and step briefs, slots, heartbeat by merges, throughput and sources scripts | Running on one project since 14 November 2026; a few parts measured once (`harness/README.md`). Before the lanes: ten packages of about 25 criteria merged in about 12 hours with Claude alone |
 | Rerunning every merged package's sealed tests on the main branch | Being built on the first project; documented only |
 | What sets the line's ceiling (`core/methods/throughput.md`) | Measured once, on the first project, 14 November 2026: the machine, not the lanes. The slot script's waiting marker fixes a wait that was measured; test suites side by side are an estimate, not yet validated |
+| Who waits on whom, and hand-offs that do not wait (`core/methods/nobody-waits.md`, `waits.mjs`) | Measured once, on the first project, 14 and 15 November 2026: the day stopped on waiting, not on defects, and a contrarian council could not refute it. The six things that help are the council's order and **proposed, not yet run** there, except the slot script's one copy for every worktree |
 | The harness's plugin, hooks, durable heartbeat and install | **Built, not yet run** on a project; tested here (`harness/README.md`) |
 
 ## The kit's own trial

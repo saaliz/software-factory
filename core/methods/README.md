@@ -12,6 +12,7 @@ Each file is one method a skill or a brief names by path. The method holds the s
 | `handoff.md` | every final note |
 | `retro.md` | one short session after each release |
 | `throughput.md` | one session when the rate of criteria proven stalls, or before adding a lane or a machine |
+| `nobody-waits.md` | one session when every lane is busy and little merges, or after the rule for what proves a merge has changed |
 | `deep-modules.md` | anyone designing or judging an interface |
 | `questionnaire.md` | questions for the owner or a human expert |
 

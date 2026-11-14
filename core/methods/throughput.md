@@ -8,7 +8,7 @@ MEASURE five things. Every number names where it was read; a number nothing reco
 
 1. **Each package's hours, step by step from seal to merge:** seal to first review reading (the build), first reading to "clear", clear to merge. Beside them its reseals, its review readings, its CI runs, and why each run after the first. Hours an outage took (a service down, a vendor at its limit) are set apart: they belong to no step.
 2. **CI:** the seconds of each step and each test suite, slowest first; the few tests that hold most of them; and, per package, the share of CI its change cannot reach (the suites of modules that neither it nor its callers touch).
-3. **Waiting:** for the CI slot; for heavy slots; on another lane's piece; idle time (no commit on any branch, and a module's hours between one package's merge and its next seal); packages that fell under the size floor.
+3. **Waiting:** (`node factory/tools/waits.mjs` charges each waited second to what held the job back; `nobody-waits.md` is the method for it) for the CI slot; for heavy slots; on another lane's piece; idle time (no commit on any branch, and a module's hours between one package's merge and its next seal); packages that fell under the size floor.
 4. **Work built but unproven:** criteria whose code is on the main branch with no sealed test passing for them, by module; how many a test already names; how many differ from the design.
 5. **Which resource sets the ceiling:** CI, the heavy slots, other lanes, reviews or test writing, by the arithmetic below.
 
