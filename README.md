@@ -8,15 +8,17 @@ It comes from one real build (a 20-module system, 17 days, 34,700 model calls) a
 
 | | Light harness and strong skills | Harness |
 |---|---|---|
-| Who drives | One person, one session at a time | Scripts and one orchestrating session; workers fill slots |
-| Where the process lives | Six skills that load only when called | An orchestrator's prompt, a launch script, a script per lane, records |
-| Scripts | The gate, the seal, the token counter, and a way to ask another maker's model | Those, plus CI with a lock, budgets, hooks, a scaffold from designs |
+| Who drives | One person, one session at a time | A super orchestrator over lane orchestrators; workers are subagents |
+| Where the process lives | Six skills that load only when called | A Claude Code plugin (six agents, three skills, five hooks), the super's rules, a brief per step, records |
+| Scripts | The gate, the seal, the token counter, and a way to ask another maker's model | Those, plus machine slots for CI and heavy jobs, a heartbeat, and the interfaces of a scaffold and contract tests |
 | Fits | One app or one module, a solo builder, starting today | Many modules, long unattended runs, two vendors, a team |
-| In this repository | **Yes: `light/`, installable now** | Not yet: `harness/README.md` says what is coming and why it waits |
+| In this repository | **Yes: `light/`, installable now** | **Yes: `harness/`, installable now** with `--profile harness`; built, mostly not yet run outside its first project |
 
 The core both share: one short entry file, the form of a brief, tests sealed before the build, the token counter, a handful of methods, and the council.
 
-## Start (the light profile)
+## Start
+
+The harness profile: `node init.mjs path/to/your/project --profile harness`, then `harness/README.md`. The light profile:
 
 ```bash
 node init.mjs path/to/your/project
@@ -78,7 +80,8 @@ The kit copies none. `core/methods/README.md` maps each job to one skill from Ad
 | One step per fresh session | Measured: a median of 146,000 tokens a call, against 372,000 for one long session |
 | Panels and councils voiced by one session | 16 sittings on the first project |
 | The light profile as a whole | Run end to end once, on a small trial work item (below). **Not yet run on a real project** |
-| The harness: chains, headless workers, hooks | **Built in part, not yet proven; not in this repository** |
+| The harness's rules, lane brief and step briefs, and its slot script | Running on one project since 14 November 2026, not yet measured. Before the lanes: ten packages of about 25 criteria merged in about 12 hours with Claude alone |
+| The harness's plugin, hooks, durable heartbeat and install | **Built, not yet run** on a project; tested here (`harness/README.md`) |
 
 ## The kit's own trial
 
@@ -101,7 +104,7 @@ That is 71,735 new plus output tokens per criterion, 6.6 million tokens sent aga
 ## Tests
 
 ```bash
-node --test "light/tools/*.test.mjs" init.test.mjs
+node --test "light/tools/*.test.mjs" "harness/plugin/hooks/*.test.mjs" "harness/plugin/scripts/*.test.mjs" init.test.mjs
 ```
 
 ## Licence

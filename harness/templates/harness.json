@@ -1,0 +1,27 @@
+{
+  "project": "<one line: what this project is>",
+  "owner": "<the person who decides what is reserved: a name or a role>",
+  "mainBranch": "main",
+  "sources": {
+    "product": { "path": "<where the requirements live, e.g. docs/requirements/>", "cite": "by requirement id" },
+    "design": { "path": "<where the designs live, e.g. docs/design/>", "cite": "by file and section, rule or endpoint" },
+    "architecture": { "path": "<where the architecture lives, e.g. docs/architecture/>", "cite": "by file and section" },
+    "decisions": { "path": "factory/decisions/", "cite": "by file; principles by number" }
+  },
+  "work": "work",
+  "records": "factory/records",
+  "commands": {
+    "tests": "<the whole test command>",
+    "gate": "node factory/tools/gate.mjs",
+    "ci": "<the project's CI command, e.g. node scripts/ci.mjs>",
+    "scaffold": "<the skeleton generator, or empty until there is one: factory/harness/interfaces.md>",
+    "contracts": "<the contract tests and integration run, or empty: factory/harness/interfaces.md>"
+  },
+  "ciPattern": "<a regular expression that matches the CI command, e.g. scripts/ci\\.mjs>",
+  "slots": { "ci": 1, "heavy": 3 },
+  "vendors": { "a": "<e.g. Claude>", "b": "<e.g. Codex, or the same vendor in a fresh context>" },
+  "forbiddenPaths": [],
+  "hooks": { "sealedTests": true, "mainBranch": true, "ciThroughSlot": true, "forbiddenPaths": true, "largeContext": true },
+  "largeContextTokens": 250000,
+  "heartbeatMinutes": 30
+}

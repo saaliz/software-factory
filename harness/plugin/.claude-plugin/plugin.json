@@ -1,0 +1,8 @@
+{
+  "name": "factory-harness",
+  "version": "0.1.0",
+  "description": "The software factory's harness profile: a super orchestrator over lane orchestrators, sealed tests by one vendor and builds by another, fresh reviews, machine slots, a durable heartbeat, and five switchable guard hooks.",
+  "author": { "name": "software-factory" },
+  "license": "MIT",
+  "keywords": ["orchestration", "sealed-tests", "hooks", "software-factory"]
+}

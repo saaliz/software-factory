@@ -30,7 +30,7 @@ SOFTWARE.
 
 ## Named, not copied
 
-Nothing from these is included in this repository. `core/methods/README.md` names their skills so a project can install and enable the ones it wants.
+Nothing from these is included in this repository. `core/methods/README.md` names their skills so a project can install and enable the ones it wants. The harness's step briefs (`harness/templates/briefs/`) load these from agent-skills by name: `context-engineering`, `api-and-interface-design`, `test-driven-development`, `incremental-implementation`, `source-driven-development`, `security-and-hardening`, `performance-optimization`, `code-simplification` and `code-review-and-quality`.
 
 - **agent-skills**, by Addy Osmani. MIT licence, copyright (c) 2025 Addy Osmani.
 - **gstack**, by Garry Tan. MIT licence, copyright (c) 2026 Garry Tan.

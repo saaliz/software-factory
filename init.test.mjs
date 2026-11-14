@@ -5,7 +5,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { install, plan } from './init.mjs';
+import { fileURLToPath } from 'node:url';
+import { install, plan, PLUGIN } from './init.mjs';
 
 const fresh = () => fs.mkdtempSync(path.join(os.tmpdir(), 'factory-init-'));
 const run = (cwd, ...args) => spawnSync(process.execPath, args, { cwd, encoding: 'utf8' });
@@ -89,4 +90,79 @@ test('the installed tools walk one work item from the unfilled form to done', ()
   assert.equal(r.status, 1);
   assert.match(r.stderr, /changed: tests\/sealed\/sign-in\.test\.js/);
   assert.equal(gate().status, 1);
+});
+
+// The harness profile.
+const guard = path.join(path.dirname(fileURLToPath(import.meta.url)), 'harness', 'plugin', 'hooks', 'guard.mjs');
+
+test('the harness profile installs the light one and the harness, and the light profile installs no harness file', () => {
+  const target = fresh();
+  const { written, kept } = install(target, { profile: 'harness' });
+  assert.equal(kept.length, 0);
+  assert.equal(written.length, plan({ profile: 'harness' }).length);
+  for (const f of ['AGENTS.md', 'factory/tools/gate.mjs', 'factory/harness.json', 'factory/harness/super-rules.md', 'factory/harness/lane-brief.md',
+    'factory/harness/lane-handover.md', 'factory/harness/briefs/sealed-tests.md', 'factory/harness/briefs/build.md', 'factory/harness/briefs/review.md',
+    'factory/tools/slots.mjs', 'factory/tools/heartbeat.mjs', 'factory/tools/claim-super.mjs', 'factory/records/.gitignore', '.claude/settings.json']) {
+    assert.ok(fs.existsSync(path.join(target, f)), f);
+  }
+  assert.ok(!written.some((f) => f.endsWith('.test.mjs')));
+  const cfg = JSON.parse(fs.readFileSync(path.join(target, 'factory', 'harness.json'), 'utf8'));
+  assert.deepEqual(Object.keys(cfg.sources), ['product', 'design', 'architecture', 'decisions']);
+  assert.deepEqual(Object.keys(cfg.hooks), ['sealedTests', 'mainBranch', 'ciThroughSlot', 'forbiddenPaths', 'largeContext']);
+  const settings = JSON.parse(fs.readFileSync(path.join(target, '.claude', 'settings.json'), 'utf8'));
+  assert.equal(settings.enabledPlugins[PLUGIN], true);
+  assert.equal(settings.extraKnownMarketplaces['software-factory'].source.source, 'directory');
+  assert.ok(!plan().some(([to]) => to.startsWith('factory/harness')));
+});
+
+test('a harness install never overwrites: an existing settings.json is kept, and a second install writes nothing', () => {
+  const target = fresh();
+  fs.mkdirSync(path.join(target, '.claude'));
+  fs.writeFileSync(path.join(target, '.claude', 'settings.json'), '{"mine":true}\n');
+  install(target);
+  const r = run(target, path.join(path.dirname(guard), '..', '..', '..', 'init.mjs'), '.', '--profile', 'harness', '--marketplace', 'someone/factory');
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /settings\.json was already there[\s\S]*"repo": "someone\/factory"/);
+  assert.equal(fs.readFileSync(path.join(target, '.claude', 'settings.json'), 'utf8'), '{"mine":true}\n');
+  const again = install(target, { profile: 'harness' });
+  assert.equal(again.written.length, 0);
+});
+
+test('an unknown profile, or the kit itself as the target, is refused', () => {
+  assert.throws(() => plan({ profile: 'heavy' }), /unknown profile/);
+  const kit = path.dirname(path.dirname(path.dirname(path.dirname(guard))));
+  assert.throws(() => install(kit, { profile: 'harness', dryRun: true }), /the kit itself/);
+  assert.equal(run(fresh(), path.join(kit, 'init.mjs'), '.', '--profile', 'heavy').status, 2);
+});
+
+test('every file a harness template, agent or skill points to is installed, or is a record the super creates', () => {
+  const target = fresh();
+  install(target, { profile: 'harness' });
+  const kit = path.dirname(path.dirname(path.dirname(path.dirname(guard))));
+  const plugin = path.join(kit, 'harness', 'plugin');
+  const texts = plan({ profile: 'harness' }).map(([to]) => to).filter((f) => f.endsWith('.md')).map((f) => [f, fs.readFileSync(path.join(target, f), 'utf8')]);
+  for (const d of ['agents', 'skills']) {
+    for (const f of fs.readdirSync(path.join(plugin, d), { recursive: true }).filter((n) => n.endsWith('.md'))) texts.push([`plugin/${d}/${f}`, fs.readFileSync(path.join(plugin, d, f), 'utf8')]);
+  }
+  const missing = [];
+  for (const [f, text] of texts) {
+    for (const m of text.matchAll(/`((?:factory|\.claude)\/[A-Za-z0-9_./-]+\.(?:md|mjs|json))`/g)) {
+      if (!m[1].startsWith('factory/records/') && !fs.existsSync(path.join(target, m[1]))) missing.push(`${f} -> ${m[1]}`);
+    }
+  }
+  assert.deepEqual(missing, []);
+});
+
+test('installed, the harness guard refuses an edit to a test the installed seal sealed', () => {
+  const target = fresh();
+  install(target, { profile: 'harness' });
+  const item = path.join(target, 'work', 'lane-a', '01-sign-in');
+  fs.mkdirSync(item, { recursive: true });
+  fs.mkdirSync(path.join(target, 'tests', 'sealed'), { recursive: true });
+  fs.writeFileSync(path.join(target, 'tests', 'sealed', 'sign-in.test.js'), 'assert(signIn())\n');
+  assert.equal(run(target, 'factory/tools/seal.mjs', 'work/lane-a/01-sign-in', 'tests/sealed').status, 0);
+  const hook = (tool_input) => spawnSync(process.execPath, [guard, 'pre'], { input: JSON.stringify({ tool_name: 'Edit', tool_input, cwd: target, session_id: 's' }), encoding: 'utf8' }).stdout;
+  assert.match(hook({ file_path: 'tests/sealed/sign-in.test.js' }), /"permissionDecision":"deny"/);
+  assert.match(hook({ file_path: 'tests/sealed/new.test.js' }), /"permissionDecision":"deny"/, 'a new file in a sealed folder');
+  assert.equal(hook({ file_path: 'src/sign-in.js' }), '');
 });
