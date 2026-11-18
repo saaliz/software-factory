@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "targets": [
+    { "id": "provider-regression", "kind": "node", "classification": "unit", "file": "tests/provider.test.mjs" },
+    { "id": "consumer-shape", "kind": "node", "classification": "direct-contract", "file": "tests/consumer.test.mjs" },
+    { "id": "registry-regression", "kind": "node", "classification": "tooling", "file": "tests/affected-registry.test.mjs" }
+  ],
+  "contracts": [
+    { "id": "consumer-contract", "description": "The direct consumer reads the provider's changed answer shape.", "targets": ["consumer-shape"] }
+  ],
+  "areas": [
+    {
+      "id": "provider-change",
+      "reason": "Example only: review the exact changed behavior, callers and shared helpers before choosing these regressions.",
+      "paths": [{ "exact": "src/provider.mjs", "before": "0000000000000000000000000000000000000000", "after": "1111111111111111111111111111111111111111" }],
+      "targets": ["provider-regression"],
+      "contracts": ["consumer-contract"]
+    },
+    {
+      "id": "registry-control",
+      "reason": "Registry changes rerun the project's focused selection/discovery refusal tests.",
+      "paths": [{ "exact": "factory/affected.json" }],
+      "targets": ["registry-regression"],
+      "contracts": []
+    }
+  ],
+  "records": [
+    { "exact": "work/repair/3-build.md", "review": "Read the repair evidence and remaining checkpoint obligations against the source requirements." }
+  ]
+}

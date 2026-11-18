@@ -8,15 +8,17 @@ It comes from one real build (a 20-module system, 17 days, 34,700 model calls) a
 
 | | Light harness and strong skills | Harness |
 |---|---|---|
-| Who drives | One person, one session at a time | Scripts and one orchestrating session; workers fill slots |
-| Where the process lives | Six skills that load only when called | An orchestrator's prompt, a launch script, a script per lane, records |
-| Scripts | The gate, the seal, the token counter, and a way to ask another maker's model | Those, plus CI with a lock, budgets, hooks, a scaffold from designs |
+| Who drives | One person, one session at a time | A super orchestrator over lane orchestrators; workers are subagents |
+| Where the process lives | Six skills that load only when called | A Claude Code plugin (six agents, three skills, five hooks), the super's rules, a brief per step, records |
+| Scripts | The gate, the seal, the token counter, and a way to ask another maker's model | Those, plus machine slots for CI and heavy jobs, a runner for test suites side by side, a heartbeat judged by merges, a throughput measure, a measure of who waited on whom, a sources check, and the interfaces of a scaffold and contract tests |
 | Fits | One app or one module, a solo builder, starting today | Many modules, long unattended runs, two vendors, a team |
-| In this repository | **Yes: `light/`, installable now** | Not yet: `harness/README.md` says what is coming and why it waits |
+| In this repository | **Yes: `light/`, installable now** | **Yes: `harness/`, installable now** with `--profile harness`; built, mostly not yet run outside its first project |
 
 The core both share: one short entry file, the form of a brief, tests sealed before the build, the token counter, a handful of methods, and the council.
 
-## Start (the light profile)
+## Start
+
+The harness profile: `node init.mjs path/to/your/project --profile harness`, then `harness/README.md`. The light profile:
 
 ```bash
 node init.mjs path/to/your/project
@@ -27,7 +29,8 @@ It never overwrites a file. It writes `AGENTS.md` and `CLAUDE.md` if absent, `fa
 1. Fill in `AGENTS.md`, sections 1 and 5 and rule 3.
 2. Fill in `factory/council/SEATS.md`; `factory/council/seats/` holds two worked examples.
 3. Read `factory/token-economy.md` once and do its six set-up steps.
-4. Start a work item with the `factory-spec` skill, one fresh session per step. `node factory/tools/gate.mjs work/NN-words` says what is next.
+4. Start a work item with the `factory-spec` skill, a bounded context per step; keep the builder for repairs and use fresh review/QA contexts. `node factory/tools/gate.mjs work/NN-words` says what is next.
+5. Configure `factory/affected.json` for repair verification (`factory/methods/affected-testing.md`): reviewed exact changes, focused regressions and direct contracts. Its empty template refuses code until configured; the shipped adapter supports exact Node test files. Full delivery/release gates still apply.
 
 Written for Node 20 or later and tested on Node 26. No packages to install.
 
@@ -78,7 +81,12 @@ The kit copies none. `core/methods/README.md` maps each job to one skill from Ad
 | One step per fresh session | Measured: a median of 146,000 tokens a call, against 372,000 for one long session |
 | Panels and councils voiced by one session | 16 sittings on the first project |
 | The light profile as a whole | Run end to end once, on a small trial work item (below). **Not yet run on a real project** |
-| The harness: chains, headless workers, hooks | **Built in part, not yet proven; not in this repository** |
+| Affected repair planner and Node exact-file runner | Built and tested on synthetic Git repositories here; not yet run on a real project. No inferred call graph, other-stack adapter or full/E2E proof |
+| The harness's rules, lane brief and step briefs, slots, heartbeat by merges, throughput and sources scripts | Running on one project since 14 November 2026; a few parts measured once (`harness/README.md`). Before the lanes: ten packages of about 25 criteria merged in about 12 hours with Claude alone |
+| Rerunning every merged package's sealed tests on the main branch | Being built on the first project; documented only |
+| What sets the line's ceiling (`core/methods/throughput.md`) | Measured once, on the first project, 14 November 2026: the machine, not the lanes. The slot script's waiting marker fixes a wait that was measured; test suites side by side are an estimate, not yet validated |
+| Who waits on whom, and hand-offs that do not wait (`core/methods/nobody-waits.md`, `waits.mjs`) | Measured once, on the first project, 14 and 15 November 2026: the day stopped on waiting, not on defects, and a contrarian council could not refute it. The six things that help are the council's order and **proposed, not yet run** there, except the slot script's one copy for every worktree |
+| The harness's plugin, hooks, durable heartbeat and install | **Built, not yet run** on a project; tested here (`harness/README.md`) |
 
 ## The kit's own trial
 
@@ -101,7 +109,7 @@ That is 71,735 new plus output tokens per criterion, 6.6 million tokens sent aga
 ## Tests
 
 ```bash
-node --test "light/tools/*.test.mjs" init.test.mjs
+node --test "light/tools/*.test.mjs" "harness/plugin/hooks/*.test.mjs" "harness/plugin/scripts/*.test.mjs" init.test.mjs
 ```
 
 ## Licence

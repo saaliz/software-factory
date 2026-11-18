@@ -8,16 +8,17 @@ The entry point for every agent and tool. `CLAUDE.md` only points here. Read thi
 
 ## 2. The rules every session follows
 
-1. **One step, one fresh session.** A session does one step of one work item and ends. It never runs on into the next step.
+1. **One step, one context.** A fresh worker receives its step's brief and sources, without the whole orchestrator history. Keep the builder's context for fixes within that build step; the review and independent QA use fresh contexts that did not build. A session never runs on into the next step.
 2. **Read what your step names, nothing more.** Search first; read ranges, not whole files; send long output to a file and search it.
 3. **Requirements come from one place:** `<where, for example docs/requirements/>`. Nothing in a test or in code adds one. A gap goes to the council (`.claude/skills/council/SKILL.md`).
 4. **Tests are sealed before the build,** by a session that does not build. A builder never edits a sealed file; a sealed test that looks wrong is a question for the owner.
 5. **A report is a claim.** Done means a command ran and printed it: the gate, the seal, the tests. Give the command and its last lines.
 6. **Scripts before models.** A step that needs no judgement is a script and costs no tokens.
 7. **No helpers** unless a brief or a skill allows one, and then only for what it names.
-8. **The owner decides** anything irreversible, legal, financial, or about safety or personal data, and any change to this file or to `factory/`. Everything else: decide, and write down what you decided in `factory/decisions/`.
+8. **The owner decides** anything irreversible, legal, financial, or about safety or personal data, and any change to this file or to `factory/`, except reviewed impact bindings in `factory/affected.json` for repairs already within the step's allowed scope. That exception changes no verification policy or gate. Everything else: decide, and write down what you decided in `factory/decisions/`.
 9. **Names, not codes,** in everything a person reads.
 10. **Stop rules.** A step that fails twice moves up one model tier; a third failure stops and says so. Past its budget, a session writes one line with the spend and what remains, and asks.
+11. **Repair verification is affected-only:** changed-behavior regressions and direct contracts, with reviewed mappings (`factory/methods/affected-testing.md`). Keep compile/static/seal/source/boundary checks; full commands run at their explicit delivery/release checkpoints. A targeted green run is not completion proof.
 
 ## 3. A work item, start to finish
 
@@ -39,4 +40,4 @@ The spec's gaps go to the council skill as a panel before the tests are sealed. 
 
 ## 5. Commands
 
-<Replace this line with: the whole test command; the sealed tests' command and folder; the unit tests' command and folder; where the code lives; the release command and where a version goes (a tag, a package, a deployment); the branch work items are cut from.>
+<Replace this line with: compile/type/static/source/boundary commands; affected repair mappings and command; full test and sealed-test commands and their explicit delivery/release checkpoints; test folders; code folders; release command and version location; work-item base branch. Configure factory/affected.json before using the repair planner.>

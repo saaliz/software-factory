@@ -7,10 +7,13 @@ Each file is one method a skill or a brief names by path. The method holds the s
 | `every-step.md` | every step skill |
 | `writing-for-agents.md` | anyone writing a brief, a skill or `AGENTS.md` |
 | `test-first.md` | sealed-test writers (rules 5 to 13) and builders (all) |
+| `affected-testing.md` | repair builders and reviewers: exact changed-behavior regressions, direct contracts and separate full checkpoints |
 | `diagnosing.md` | any session given a defect, a flaky test or something slow |
 | `review.md` | every review |
 | `handoff.md` | every final note |
 | `retro.md` | one short session after each release |
+| `throughput.md` | one session when the rate of criteria proven stalls, or before adding a lane or a machine |
+| `nobody-waits.md` | one session when every lane is busy and little merges, or after the rule for what proves a merge has changed |
 | `deep-modules.md` | anyone designing or judging an interface |
 | `questionnaire.md` | questions for the owner or a human expert |
 

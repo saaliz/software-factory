@@ -1,0 +1,11 @@
+{
+  "name": "software-factory",
+  "owner": { "name": "software-factory" },
+  "plugins": [
+    {
+      "name": "factory-harness",
+      "source": "./harness/plugin",
+      "description": "The harness profile: agents, three skills, five switchable hooks and the slot script."
+    }
+  ]
+}
