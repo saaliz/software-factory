@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { install, plan, PLUGIN } from './init.mjs';
 
 const fresh = () => fs.mkdtempSync(path.join(os.tmpdir(), 'factory-init-'));
@@ -151,6 +151,34 @@ test('every file a harness template, agent or skill points to is installed, or i
     }
   }
   assert.deepEqual(missing, []);
+});
+
+test('both profiles install an importable affected planner with valid fail-closed mappings and its method', t => {
+  for (const profile of ['light', 'harness']) {
+    const target = fresh(); t.after(() => fs.rmSync(target, { recursive: true, force: true }));
+    install(target, { profile });
+    assert.ok(fs.existsSync(path.join(target, 'factory/methods/affected-testing.md')));
+    const registry = JSON.parse(fs.readFileSync(path.join(target, 'factory/affected.json'), 'utf8'));
+    assert.deepEqual(registry, { version: 1, targets: [], contracts: [], areas: [], records: [] });
+    const example = JSON.parse(fs.readFileSync(path.join(target, 'factory/affected.example.json'), 'utf8'));
+    const tool = pathToFileURL(path.join(target, 'factory/tools/affected.mjs')).href;
+    const r = run(target, '--input-type=module', '-e', 'const m = await import(process.argv[1]); m.validateRegistry(JSON.parse(process.argv[2])); m.validateRegistry(JSON.parse(process.argv[3])); console.log(m.SCOPE)', tool, JSON.stringify(registry), JSON.stringify(example));
+    assert.equal(r.status, 0, r.stderr); assert.match(r.stdout, /affected-only; full\/E2E not run/);
+    assert.equal(run(target, 'factory/tools/affected.mjs', 'plan').status, 1);
+  }
+});
+
+test('a profile upgrade preserves project-owned affected mappings and tools byte for byte', t => {
+  const target = fresh(); t.after(() => fs.rmSync(target, { recursive: true, force: true }));
+  install(target);
+  const owned = ['factory/affected.json', 'factory/affected.example.json', 'factory/tools/affected.mjs', 'factory/methods/affected-testing.md'];
+  for (const file of owned) fs.writeFileSync(path.join(target, file), `project owns ${file}\n`);
+  const result = install(target, { profile: 'harness' });
+  for (const file of owned) {
+    assert.ok(result.kept.includes(file), file);
+    assert.equal(fs.readFileSync(path.join(target, file), 'utf8'), `project owns ${file}\n`);
+  }
+  assert.equal(install(target, { profile: 'harness' }).written.length, 0);
 });
 
 test('installed, the harness guard refuses an edit to a test the installed seal sealed', () => {

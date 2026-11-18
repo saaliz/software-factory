@@ -60,6 +60,8 @@ export function plan({ profile = 'light', marketplace } = {}) {
     ['factory/brief.md', { from: 'core/brief.template.md' }],
     ['factory/item.md', { from: 'core/item.template.md' }],
     ['factory/token-economy.md', { from: 'core/token-economy.md' }],
+    ['factory/affected.json', { from: 'core/affected.template.json' }],
+    ['factory/affected.example.json', { from: 'core/affected.example.json' }],
     ['factory/council/SEATS.md', { from: 'council/SEATS.template.md' }],
     ['factory/council/decision.md', { from: 'council/decision.template.md' }],
     ['factory/council/process-change.md', { from: 'council/process-change.template.md' }],

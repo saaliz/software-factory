@@ -5,7 +5,7 @@ description: Build step of a work item. Turn its sealed tests green with the sma
 
 # Build
 
-Follow `factory/methods/every-step.md` and `factory/methods/test-first.md`, all of it. Model: the middle tier, chosen by whoever started you; the high tier where a criterion touches rights, safety, money or something sent to a real person, or after two failed attempts.
+Follow `factory/methods/every-step.md`, `factory/methods/test-first.md` and `factory/methods/affected-testing.md`. Model: the middle tier, chosen by whoever started you; the high tier where a criterion touches rights, safety, money or something sent to a real person, or after two failed attempts. Keep this builder's context for repair passes; a fresh worker receives only its brief and source pointers. Return compile/type feedback before handing off.
 
 ## Start
 
@@ -20,7 +20,7 @@ Follow `factory/methods/every-step.md` and `factory/methods/test-first.md`, all 
 ## Do
 
 - Criterion by criterion: a unit test, see it fail, the code, see it pass. Criteria that share one piece of code may share a cycle and a commit.
-- Between commits run the unit tests your change reaches; run the sealed tests' command when a criterion's code is done.
+- After each fix, run the changed-behavior regressions and small direct contract checks with reviewed exact mappings. Keep compile/type/static, seal, source and boundary checks. Run full sealed/package/project commands at the explicit build-delivery checkpoint, not after each repair.
 - A sealed test that looks wrong is a question, with the file, the line and what the requirement says. Carry on with the other criteria.
 - A failure you cannot explain in one probe goes through `factory/methods/diagnosing.md`.
 - At the end, with everything green, refactor once (`test-first.md`, rule 4).
@@ -32,9 +32,9 @@ Follow `factory/methods/every-step.md` and `factory/methods/test-first.md`, all 
 
 ## Done means
 
-- The sealed tests' command is green, counted from its output.
+- At build delivery, the required sealed tests' command is green, counted from its output.
 - `node factory/tools/seal.mjs work/NN-words --check` prints `the seal holds`.
-- The project's whole test command is green.
+- The project's whole test command is green at its required build-delivery checkpoint. A targeted repair pass alone is never "done".
 
 ## Commit
 
@@ -42,4 +42,4 @@ Follow `factory/methods/every-step.md` and `factory/methods/test-first.md`, all 
 
 ## Note
 
-`3-build.md`: per criterion or group, the files and the tests; what is still red; anything for the reviewer.
+`3-build.md`: per criterion or group, files and tests, failing regression/counterexample line, compile feedback, affected base/head/registry pins, selection reasons/direct contracts and counts; full/E2E not run until its checkpoint; what is still red and anything for the reviewer.

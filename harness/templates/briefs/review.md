@@ -12,6 +12,7 @@ DO, by `factory/methods/review.md`, adding to the Standards axis:
 - **Design and architecture:** the code against the module's design (its front page, its seams both ways, its interfaces) and the architecture source. A seam answered in another shape than the other side expects, or a boundary crossed outside the listed calls, is must-fix.
 - **Sources:** every hand-written class, endpoint group, migration and job names its source, and the source resolves. A missing or broken one is must-fix.
 - **Contract first:** every hand-written contract matches its generated one; every new unit test has its red line in `3-build.md`.
+- **Repair evidence:** check the pinned affected selection against the changed behavior, shared helpers, removed/renamed tests and direct contracts (`factory/methods/affected-testing.md`). Do not interpret targeted green as full/E2E or acceptance proof. Independent QA, both semantic axes and required full checkpoint gates still apply.
 
 WRITE the verdict under `## Review` in `item.md` (its first line `clear`, or the worst must-fix) and the findings in `4-review.md`, the two axes apart, each ending in its count and worst finding.
 

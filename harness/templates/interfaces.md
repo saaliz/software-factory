@@ -1,6 +1,10 @@
 # What a project fills in: the gate, the scaffold, the contract tests, the CI command
 
-These depend on the stack, so the kit ships what each must do, not its code. Name each command in `factory/harness.json`, `commands`. Until a project has one, its row in the briefs is skipped and the super's `NOW.md` says so.
+These depend on the stack, so the kit ships what each must do, not its code. Name each command in `factory/harness.json`, `commands`. Until a project has a scaffold or integration interface, its row in the briefs is skipped and the super's `NOW.md` says so. A missing repair mapping or unsupported test adapter refuses verification; it is never skipped into green.
+
+## Affected repair verification
+
+Both profiles install `factory/tools/affected.mjs`, empty `factory/affected.json` and `factory/methods/affected-testing.md`. Fill the registry with reviewed exact before/after blob bindings, small regression targets and their direct contracts. The shipped adapter runs exact Node test files only; the method describes the explicit project adapter interface for other stacks. No whole-module fallback is implicit. `commands.repair` plans then runs a pinned repair diff; `commands.compile` names the compile/type/static/source/boundary checks. Repair runs use shared heavy slots; full `commands.tests`/`commands.ci` remain required at the existing delivery, candidate and release checkpoints. Independent QA, both semantic source-review axes, seal and gates remain required. Evidence always says affected-only and full/E2E not run until the checkpoint actually runs.
 
 ## The gate
 

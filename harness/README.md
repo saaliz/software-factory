@@ -14,6 +14,7 @@ It never overwrites a file. Beyond the light profile it writes `factory/harness.
 2. In Claude Code, trust the folder, run `/plugin` and install `factory-harness` from the `software-factory` marketplace (or `claude plugin marketplace add <this kit>` and `claude plugin install factory-harness@software-factory`).
 3. Start the super: `/factory-harness:factory-super`, or `claude --agent factory-harness:factory-super`.
 4. Set a durable heartbeat: `factory/harness/heartbeat.md`.
+5. Configure the common `factory/affected.json` before repair verification: exact reviewed before/after Git blob bindings, focused regressions and direct contracts (`factory/methods/affected-testing.md`). `commands.repair` names the planner/runner; `commands.compile` names compile/static checks. Use heavy slots for repairs and full CI at the existing candidate/release checkpoints. Node exact files are supported; other adapters refuse until implemented and tested by the project.
 
 The gate, the scaffold and the contract tests depend on the stack: the kit ships what each must do (`templates/interfaces.md`), and a project names its own commands.
 
@@ -75,5 +76,6 @@ The harness generalizes how its first project runs today. Each part is running t
 | The plugin: agents and skills | Built, not yet run |
 | The five hooks | Built, not yet run on a project. Tested here; the sealed-test and main-branch guards refused once each in a live headless session |
 | `init.mjs --profile harness` | Built, not yet run on a project; tested here |
+| Common affected repair planner and Node exact-file runner | Built and tested on synthetic Git repositories here; not yet run on a real project. Targeted evidence does not replace independent QA, either semantic source-review axis or full checkpoint gates |
 
 Measured so far, on the first project: before the lanes, ten packages of about 25 criteria each merged in about 12 hours with Claude alone. Earlier, under the first version of the harness, no package merged in its first 41 hours, and a worker ran for at most 26 of 116 hours, mostly because each next step waited for a person: the heartbeat and never-idle rules come from that. With five lanes, on 14 November, the line ran at 15 criteria an hour, 28 in its best stretch, against a ceiling of about 34 the machine set (`core/methods/throughput.md`).

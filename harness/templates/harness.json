@@ -11,7 +11,9 @@
   "work": "work",
   "records": "factory/records",
   "commands": {
-    "tests": "<the whole test command>",
+    "tests": "<the full test command, required at delivery/release checkpoints>",
+    "compile": "<the compile/type/static/source/boundary checks applicable during repairs>",
+    "repair": "node factory/tools/affected.mjs",
     "gate": "node factory/tools/gate.mjs",
     "ci": "<the project's CI command, e.g. node scripts/ci.mjs>",
     "scaffold": "<the skeleton generator, or empty until there is one: factory/harness/interfaces.md>",
