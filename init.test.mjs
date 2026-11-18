@@ -158,11 +158,14 @@ test('both profiles install an importable affected planner with valid fail-close
     const target = fresh(); t.after(() => fs.rmSync(target, { recursive: true, force: true }));
     install(target, { profile });
     assert.ok(fs.existsSync(path.join(target, 'factory/methods/affected-testing.md')));
+    assert.ok(fs.existsSync(path.join(target, 'factory/tools/affected-node-reporter.mjs')));
     const registry = JSON.parse(fs.readFileSync(path.join(target, 'factory/affected.json'), 'utf8'));
     assert.deepEqual(registry, { version: 1, targets: [], contracts: [], areas: [], records: [] });
     const example = JSON.parse(fs.readFileSync(path.join(target, 'factory/affected.example.json'), 'utf8'));
     const tool = pathToFileURL(path.join(target, 'factory/tools/affected.mjs')).href;
-    const r = run(target, '--input-type=module', '-e', 'const m = await import(process.argv[1]); m.validateRegistry(JSON.parse(process.argv[2])); m.validateRegistry(JSON.parse(process.argv[3])); console.log(m.SCOPE)', tool, JSON.stringify(registry), JSON.stringify(example));
+    fs.writeFileSync(path.join(target, 'probe.test.mjs'), "import test from 'node:test'; test('installed reporter discovers a real test', () => {});\n");
+    const env = { ...process.env }; delete env.NODE_TEST_CONTEXT;
+    const r = spawnSync(process.execPath, ['--input-type=module', '-e', 'const m = await import(process.argv[1]); m.validateRegistry(JSON.parse(process.argv[2])); m.validateRegistry(JSON.parse(process.argv[3])); const r = m.nodeResult(m.runNode(process.cwd(), { file: "probe.test.mjs" }), process.argv[4]); if (r.status !== "passed" || r.total !== 1) throw new Error(JSON.stringify(r)); console.log(m.SCOPE)', tool, JSON.stringify(registry), JSON.stringify(example), path.join(target, 'probe.test.mjs')], { cwd: target, env, encoding: 'utf8' });
     assert.equal(r.status, 0, r.stderr); assert.match(r.stdout, /affected-only; full\/E2E not run/);
     assert.equal(run(target, 'factory/tools/affected.mjs', 'plan').status, 1);
   }
@@ -171,7 +174,7 @@ test('both profiles install an importable affected planner with valid fail-close
 test('a profile upgrade preserves project-owned affected mappings and tools byte for byte', t => {
   const target = fresh(); t.after(() => fs.rmSync(target, { recursive: true, force: true }));
   install(target);
-  const owned = ['factory/affected.json', 'factory/affected.example.json', 'factory/tools/affected.mjs', 'factory/methods/affected-testing.md'];
+  const owned = ['factory/affected.json', 'factory/affected.example.json', 'factory/tools/affected.mjs', 'factory/tools/affected-node-reporter.mjs', 'factory/methods/affected-testing.md'];
   for (const file of owned) fs.writeFileSync(path.join(target, file), `project owns ${file}\n`);
   const result = install(target, { profile: 'harness' });
   for (const file of owned) {

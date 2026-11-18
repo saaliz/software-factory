@@ -5,13 +5,16 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { affectedPlan, executeAffected, nodeResult, parseArgs, REGISTRY, validateRegistry, verifyPlan } from './affected.mjs';
 
 const cli = fileURLToPath(new URL('./affected.mjs', import.meta.url));
 const source = 'src/provider.mjs', unit = 'tests/provider.test.mjs', contract = 'tests/consumer.test.mjs';
-const summary = (pass = 1, total = 1, extra = {}) => ({ code: 0,
-  stdout: `TAP version 13\n# tests ${total}\n# suites 0\n# pass ${pass}\n# fail ${total - pass}\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 1\n`, ...extra });
+const summary = (pass = 1, total = 1, extra = {}, file = path.resolve('tests/fixture.test.mjs'), counts = {}) => {
+  const data = { success: pass === total, counts: { tests: total, passed: pass, failed: total - pass, cancelled: 0, skipped: 0, todo: 0, suites: 0, ...counts } };
+  const events = Array.from({ length: total }, (_, i) => ({ type: i < pass ? 'test:pass' : 'test:fail', data: { name: `test ${i}`, file, line: 1, column: 2, nesting: 0, details: { type: 'test' } } }));
+  return { code: 0, stdout: [...events, { type: 'test:summary', data: { ...data, file } }, { type: 'test:summary', data }].map(e => JSON.stringify(e)).join('\n') + '\n', ...extra };
+};
 const empty = () => ({ version: 1, targets: [], contracts: [], areas: [], records: [] });
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'factory-affected-'));
@@ -134,7 +137,7 @@ test('run consumes the exact pinned plan and refuses drift, dirty and untracked 
 });
 test('post-run input mutation invalidates otherwise passing evidence', t => {
   const f = fixture(t), p = affectedPlan(f.root, { base: f.base, head: f.change() });
-  const result = executeAffected(f.root, p, { runTarget: () => { f.put(source, 'mutation'); return summary(); } });
+  const result = executeAffected(f.root, p, { runTarget: (root, target) => { f.put(source, 'mutation'); return summary(1, 1, {}, path.resolve(root, target.file)); } });
   assert.equal(result.allPassed, false); assert.match(result.pinError, /clean HEAD/);
 });
 test('every selected target runs after failures and exceptions; no broader command is invoked', t => {
@@ -142,7 +145,7 @@ test('every selected target runs after failures and exceptions; no broader comma
   const r = executeAffected(f.root, p, { runTarget: (root, target) => {
     assert.equal(root, f.root); called.push(target.id);
     if (target.id === 'provider') throw new Error('runner unavailable');
-    return target.id === 'consumer' ? summary(0) : summary();
+    return summary(target.id === 'consumer' ? 0 : 1, 1, {}, path.resolve(root, target.file));
   } });
   assert.deepEqual(called, ['consumer', 'provider', 'tool']); assert.equal(r.allPassed, false);
   assert.deepEqual(r.results.map(x => x.status), ['failed', 'not run', 'passed']);
@@ -150,10 +153,11 @@ test('every selected target runs after failures and exceptions; no broader comma
 test('Node discovery refuses zero, missing, partial, duplicate, skipped, todo, cancellation and nonzero exit evidence', () => {
   for (const r of [summary(0, 0), { code: 0, stdout: '' }, { code: 0, stdout: '# tests 1\n# pass 1\n' },
     summary(1, 1, { code: 1 }), summary(1, 1, { error: 'spawn failed' }),
-    ...['cancelled', 'skipped', 'todo'].map(x => { const r = summary(); r.stdout = r.stdout.replace(`# ${x} 0`, `# ${x} 1`); return r; }),
+    ...['cancelled', 'skipped', 'todo'].map(x => summary(1, 1, {}, undefined, { [x]: 1 })),
     { code: 0, stdout: summary().stdout + summary().stdout },
   ]) assert.notEqual(nodeResult(r).status, 'passed');
   assert.equal(nodeResult(summary()).status, 'passed');
+  assert.notEqual(nodeResult(summary(), path.resolve('tests/different.test.mjs')).status, 'passed');
 });
 test('CLI accepts only immutable base plans and exact saved-plan runs', t => {
   assert.deepEqual(parseArgs(['plan', '--base', '1234567']), { mode: 'plan', base: '1234567' });
@@ -172,4 +176,46 @@ test('real Node CLI plans then runs only exact selected files and captures usabl
   const evidence = JSON.parse(result.stdout); assert.equal(evidence.allPassed, true); assert.equal(evidence.results.length, 3);
   assert.ok(evidence.results.every(x => x.total === 1 && x.passed === 1)); assert.match(evidence.scope, /full\/E2E not run/);
   assert.equal(evidence.runtime.kind, 'node'); assert.equal(f.git('status', '--porcelain'), '');
+});
+test('real CLI refuses empty/import-only test files despite Node passing its synthetic file placeholder', t => {
+  for (const text of ['// no tests registered\n', "import '../src/provider.mjs';\n", "import { describe } from 'node:test'; describe('empty suite', () => {});\n"]) {
+    const f = fixture(t); f.put(unit, text); f.bind(unit, ['provider'], []); const head = f.commit();
+    const env = { ...process.env }; delete env.NODE_TEST_CONTEXT;
+    const run = (...args) => spawnSync(process.execPath, [cli, ...args], { cwd: f.root, env, encoding: 'utf8' });
+    const planned = run('plan', '--base', f.base, '--head', head); assert.equal(planned.status, 0, planned.stderr);
+    f.put('work/repair/tmp/plan.json', planned.stdout);
+    const result = run('run', '--plan', 'work/repair/tmp/plan.json'), evidence = JSON.parse(result.stdout);
+    assert.equal(result.status, 1, 'an empty exact file must not be runtime proof');
+    const provider = evidence.results.find(x => x.id === 'provider');
+    assert.equal(provider.code, 0, provider.stderr); assert.match(provider.stdout, /"type":"test:summary"/);
+    assert.equal(evidence.allPassed, false); assert.equal(provider.status, 'not run'); assert.equal(provider.total, 0); assert.deepEqual(provider.tests, []);
+  }
+});
+test('real exact-file discovery preserves named tests and nested subtests and refuses skips/failures', t => {
+  for (const [text, ok, total] of [
+    ["import test from 'node:test'; test('tests/provider.test.mjs', () => {});\n", true, 1],
+    ["import test from 'node:test'; test('parent', async t => { await t.test('child', () => {}); });\n", true, 2],
+    ["import { describe, it } from 'node:test'; describe('suite', () => { it('nested real test', () => {}); });\n", true, 1],
+    ["import test from 'node:test'; test.skip('skipped', () => {});\n", false, 1],
+    ["import test from 'node:test'; test('failure', () => { throw new Error('expected failing regression'); });\n", false, 1],
+  ]) {
+    const f = fixture(t); f.put(unit, text); f.bind(unit, ['provider'], []); const head = f.commit();
+    const env = { ...process.env }; delete env.NODE_TEST_CONTEXT;
+    const run = (...args) => spawnSync(process.execPath, [cli, ...args], { cwd: f.root, env, encoding: 'utf8' });
+    const planned = run('plan', '--base', f.base, '--head', head); assert.equal(planned.status, 0, planned.stderr);
+    f.put('work/repair/tmp/plan.json', planned.stdout);
+    const result = run('run', '--plan', 'work/repair/tmp/plan.json'), evidence = JSON.parse(result.stdout);
+    assert.equal(result.status, ok ? 0 : 1, result.stdout + result.stderr); assert.equal(evidence.allPassed, ok);
+    const provider = evidence.results.find(x => x.id === 'provider'); assert.equal(provider.total, total);
+    assert.equal(provider.tests.length, total); assert.ok(provider.tests.every(x => x.name && x.file && x.line > 0));
+  }
+});
+test('changing the bundled reporter invalidates a saved plan even when the project tree stays clean', async t => {
+  const f = fixture(t), head = f.change(), runner = 'work/repair/tmp/runner';
+  f.put(`${runner}/affected.mjs`, fs.readFileSync(cli, 'utf8'));
+  f.put(`${runner}/affected-node-reporter.mjs`, fs.readFileSync(new URL('./affected-node-reporter.mjs', import.meta.url), 'utf8'));
+  const copied = await import(pathToFileURL(path.join(f.root, runner, 'affected.mjs')).href);
+  const p = copied.affectedPlan(f.root, { base: f.base, head }); assert.doesNotThrow(() => copied.verifyPlan(f.root, p));
+  f.put(`${runner}/affected-node-reporter.mjs`, '// changed reporter transport\n');
+  assert.equal(f.git('status', '--porcelain'), ''); assert.throws(() => copied.verifyPlan(f.root, p), /implementation; regenerate plan/);
 });

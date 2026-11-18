@@ -10,7 +10,8 @@ import { fileURLToPath } from 'node:url';
 export const REGISTRY = 'factory/affected.json';
 export const SCOPE = 'affected-only; full/E2E not run';
 const hash = text => crypto.createHash('sha256').update(text).digest('hex');
-const implementationHash = hash(fs.readFileSync(fileURLToPath(import.meta.url)));
+const reporterUrl = new URL('./affected-node-reporter.mjs', import.meta.url), reporterFile = fileURLToPath(reporterUrl);
+const implementationHash = () => hash(JSON.stringify([fileURLToPath(import.meta.url), reporterFile].map(file => [path.basename(file), hash(fs.readFileSync(file))])));
 const safePath = file => typeof file === 'string' && /^[A-Za-z0-9_.@/-]+$/.test(file)
   && !file.startsWith('/') && file.split('/').every(p => p && p !== '.' && p !== '..');
 const id = value => typeof value === 'string' && /^[a-z][a-z0-9-]*$/.test(value);
@@ -124,7 +125,7 @@ export function affectedPlan(root, { base, head = 'HEAD' }) {
   const targets = [...selected.values()].sort((a, b) => a.id.localeCompare(b.id));
   for (const t of targets) if (!regularAt(root, head, t.file)) gaps.push(`target ${t.id} missing/not a regular tracked file at head: ${t.file}`);
   if (gaps.length) throw new Error(`affected plan refused:\n${gaps.join('\n')}`);
-  return { version: 1, mode: 'affected-only', base, head, registry: REGISTRY, registryHash: hash(raw), implementationHash, changes, changedPaths, targets, records,
+  return { version: 1, mode: 'affected-only', base, head, registry: REGISTRY, registryHash: hash(raw), implementationHash: implementationHash(), changes, changedPaths, targets, records,
     outcome: targets.length ? 'selected tests require execution' : changedPaths.length ? 'record-only; static review required; no runtime proof' : 'no tracked changes; no runtime proof',
     requiredReviews: ['Independent QA and both semantic source review axes remain required.', 'Compile, static, seal, source, boundary and delivery/release checkpoint checks remain required.'], scope: SCOPE };
 }
@@ -137,19 +138,34 @@ export function verifyPlan(root, p) {
 }
 /** Node exact-file adapter. Project adapters must own exact selection, discovery and SDK/build scope; see affected-testing.md. */
 export function runNode(root, target) {
-  const r = spawnSync(process.execPath, ['--test', '--test-reporter=tap', target.file], { cwd: root, env: process.env, shell: false, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+  const r = spawnSync(process.execPath, ['--test', `--test-reporter=${reporterUrl.href}`, target.file], { cwd: root, env: process.env, shell: false, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
   return { code: r.status ?? 1, stdout: r.stdout ?? '', stderr: r.stderr ?? '', ...(r.error ? { error: r.error.message } : {}) };
 }
-export function nodeResult(r) {
-  // Match one complete TAP summary, not a partial/missing summary or an incidental earlier line.
-  const summaries = [...(r.stdout ?? '').matchAll(/^# tests (\d+)\r?\n# suites (\d+)\r?\n# pass (\d+)\r?\n# fail (\d+)\r?\n# cancelled (\d+)\r?\n# skipped (\d+)\r?\n# todo (\d+)\s*$/gm)];
-  const [total, , passed, failed, cancelled, skipped, todo] = summaries.length === 1 ? summaries[0].slice(1).map(Number) : Array(7).fill(0);
+export function nodeResult(r, expectedFile) {
   const issues = [];
-  if (summaries.length !== 1 || !total) issues.push('zero discovery or missing/ambiguous test summary');
-  if (failed || cancelled || skipped || todo) issues.push('failed, cancelled, skipped or todo tests');
+  let events = [];
+  try { events = (r.stdout ?? '').split(/\r?\n/).filter(Boolean).map(line => JSON.parse(line)); }
+  catch { issues.push('invalid discovery event stream'); }
+  const summaries = events.filter(e => e?.type === 'test:summary').map(e => e.data);
+  const files = summaries.filter(e => typeof e?.file === 'string'), aggregate = summaries.filter(e => e && !Object.hasOwn(e, 'file'));
+  const countNames = ['tests', 'passed', 'failed', 'cancelled', 'skipped', 'todo', 'suites'];
+  const validCounts = c => c && countNames.every(k => Number.isSafeInteger(c[k]) && c[k] >= 0);
+  const discovered = files.length === 1 && aggregate.length === 1 && validCounts(files[0].counts) && validCounts(aggregate[0].counts)
+    && (!expectedFile || path.resolve(files[0].file) === path.resolve(expectedFile));
+  // Node's successful empty-file placeholder has tests/pass 1 in the aggregate, but no
+  // per-file registration summary. An empty describe has a summary with tests 0.
+  const total = discovered ? files[0].counts.tests : 0, passed = discovered ? files[0].counts.passed : 0;
+  const tests = (discovered ? events : []).filter(e => ['test:pass', 'test:fail'].includes(e?.type) && e.data?.details?.type === 'test').map(e => ({
+    name: e.data.name, file: e.data.file, line: e.data.line, column: e.data.column, nesting: e.data.nesting,
+    status: e.type === 'test:pass' && !e.data.skip && !e.data.todo ? 'passed' : 'failed/not run',
+  }));
+  if (!discovered || !total) issues.push('zero real test discovery or missing/ambiguous per-file registration summary');
+  if (discovered && (countNames.some(k => files[0].counts[k] !== aggregate[0].counts[k]) || tests.length !== total
+    || tests.some(t => typeof t.name !== 'string' || !t.name || typeof t.file !== 'string' || !Number.isSafeInteger(t.line) || t.line < 1))) issues.push('discovery outcomes do not match exact-file summaries');
+  if (summaries.some(s => !s?.success || ['failed', 'cancelled', 'skipped', 'todo'].some(k => s.counts?.[k])) || tests.some(t => t.status !== 'passed')) issues.push('failed, cancelled, skipped or todo tests');
   if (r.code !== 0 || r.error) issues.push(r.error ?? `runner exit ${r.code}`);
   const ok = total > 0 && total === passed && issues.length === 0;
-  return { status: !total ? 'not run' : ok ? 'passed' : 'failed', total, passed, issues };
+  return { status: !total ? 'not run' : ok ? 'passed' : 'failed', total, passed, tests, issues };
 }
 /** runTarget is the exact-target transport seam for tests/project wrappers; it cannot widen registry selectors. */
 export function executeAffected(root, p, { runTarget = runNode } = {}) {
@@ -158,7 +174,7 @@ export function executeAffected(root, p, { runTarget = runNode } = {}) {
   for (const target of p.targets) {
     const at = Date.now();
     let r; try { r = runTarget(root, target); } catch (e) { r = { code: 1, error: e.message }; }
-    results.push({ id: target.id, ...nodeResult(r), code: r.code ?? 1, durationMs: Date.now() - at, stdout: r.stdout ?? '', stderr: r.stderr ?? '' });
+    results.push({ id: target.id, ...nodeResult(r, path.resolve(root, target.file)), code: r.code ?? 1, durationMs: Date.now() - at, stdout: r.stdout ?? '', stderr: r.stderr ?? '' });
   }
   let pinError; try { verifyPlan(root, p); } catch (e) { pinError = e.message; }
   return { ...p, at: new Date().toISOString(), durationMs: Date.now() - started, runtime: { kind: 'node', version: process.version, executable: process.execPath }, results,
