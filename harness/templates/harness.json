@@ -20,7 +20,8 @@
     "contracts": "<the contract tests and integration run, or empty: factory/harness/interfaces.md>"
   },
   "ciPattern": "<a regular expression that matches the CI command, e.g. scripts/ci\\.mjs>",
-  "slots": { "ci": 1, "heavy": 3 },
+  "slots": { "ci": 1, "heavy": 3, "laneHeavy": 2 },
+  "lanes": { "main": "super", "<the first word of a job label, e.g. a module name>": "<its lane, e.g. A>" },
   "vendors": { "a": "<e.g. Claude>", "b": "<e.g. Codex, or the same vendor in a fresh context>" },
   "sourcesCheck": { "code": ["<the folders of hand-written code, e.g. src/>"], "generatedMarker": "generated", "backlog": "factory/sources-backlog.txt" },
   "services": [{ "name": "<a service every lane needs, e.g. the container engine>", "check": "<a command that answers when it is up>", "restart": "<the steps, in order, that only the super runs>" }],

@@ -3,14 +3,24 @@
 // process is gone is stale and is taken over. A ci slot also takes a heavy slot. The command's exit code is passed back.
 //   node factory/tools/slots.mjs ci --label <package> -- <the CI command>
 //   node factory/tools/slots.mjs heavy --label <words> -- <command>
+//   node factory/tools/slots.mjs heavy --lane <lane> --label <words> -- <command>   (the lane named; else read from the label)
 //   node factory/tools/slots.mjs ci --alone --label <package> -- <the CI command>   (also takes every heavy slot: runs alone)
 //   node factory/tools/slots.mjs list
-// Limits: factory/harness.json "slots" { ci, heavy }, or FACTORY_SLOTS_CI and FACTORY_SLOTS_HEAVY. Defaults 1 and 3.
+// Limits: factory/harness.json "slots" { ci, heavy, laneHeavy }, or FACTORY_SLOTS_CI, FACTORY_SLOTS_HEAVY and
+// FACTORY_SLOTS_LANEHEAVY. Defaults 1, 3, and one fewer than heavy (at least 1).
 // Folder: FACTORY_SLOTS, or <LOCALAPPDATA or the temp folder>/software-factory/slots. Wait between tries: FACTORY_SLOTS_POLL_MS,
 // five seconds unless set.
+// FIRST COME, FIRST SERVED. Each kind of slot has a queue of tickets (ci-queue/, heavy-queue/): a slot that comes free goes to
+// the earliest live ticket, not to whichever job polls first. On the first project a job that ran back to back won every poll,
+// and a waiter starved.
+// A LANE'S SHARE. No lane holds more than laneHeavy heavy slots at once. A job's lane is --lane, or the first word of its label
+// looked up in factory/harness.json "lanes" ({ "<word>": "<lane>" }). A ticket of a lane at its share keeps its place while a
+// later ticket of another lane goes past it. The super (lane "super") and a job that runs alone are exempt.
 // A job that runs alone says it is waiting (alone-waiting.lock): no other job takes a heavy slot while it waits, so the jobs
-// running end and it starts. Without the marker the other sessions keep taking each slot that comes free ahead of it, and it
-// waits with the slots it already holds standing idle. One job waits alone at a time; a second waits for the marker.
+// running end and it starts. One job waits alone at a time; a second waits for the marker.
+// DEAD FILES. Every lock, ticket, marker and waiting file is touched by its holder every 30 seconds; one not touched for two
+// minutes is dead though its process id answers, because Windows reuses process ids (on the first project a dead waiter's
+// reused id held 18 jobs behind three free slots). FACTORY_SLOTS_STALE_MS changes the two minutes, for tests.
 // Every job leaves one line in log.jsonl in the folder: what it waited and how long it ran (factory/methods/throughput.md
 // reads it). The command is told how many heavy slots it holds, FACTORY_HEAVY_SLOTS (side-by-side.mjs reads it).
 // A job waiting for its slots says so in waiting-<pid>.json until it starts (heartbeat.mjs names any waiting over an hour).
@@ -20,20 +30,34 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { loadConfig } from './config.mjs';
 
 export const DEFAULTS = { ci: 1, heavy: 3 };
+export const SUPER = 'super';
+/** How often a holder touches its files, and how long an untouched one lives. */
+export const TOUCH_MS = 30_000;
+export const STALE_MS = 120_000;
 
 /** The limits: environment first, then the nearest factory/harness.json, then the defaults. */
 export function limits(env = process.env, cwd = process.cwd()) {
-  let fromFile = {};
-  for (let d = path.resolve(cwd); ; d = path.dirname(d)) {
-    const f = path.join(d, 'factory', 'harness.json');
-    if (fs.existsSync(f)) { try { fromFile = JSON.parse(fs.readFileSync(f, 'utf8')).slots ?? {}; } catch { /* defaults */ } break; }
-    if (path.dirname(d) === d) break;
-  }
-  const pick = (k) => Number(env[`FACTORY_SLOTS_${k.toUpperCase()}`] ?? fromFile[k] ?? DEFAULTS[k]);
-  return { ci: pick('ci'), heavy: pick('heavy') };
+  const fromFile = loadConfig(cwd).config.slots ?? {};
+  const pick = (k, d) => Number(env[`FACTORY_SLOTS_${k.toUpperCase()}`] ?? fromFile[k] ?? d);
+  const ci = pick('ci', DEFAULTS.ci), heavy = pick('heavy', DEFAULTS.heavy);
+  return { ci, heavy, laneHeavy: pick('laneHeavy', Math.max(1, heavy - 1)) };
 }
+
+/** The label words that name a lane, from factory/harness.json "lanes"; the word "super" always names the super. */
+export function laneWords(cwd = process.cwd()) {
+  const words = {};
+  for (const [w, lane] of Object.entries(loadConfig(cwd).config.lanes ?? {})) if (!w.startsWith('<') && !String(lane).startsWith('<')) words[w.toLowerCase()] = String(lane);
+  return { ...words, [SUPER]: SUPER };
+}
+
+/** A job's lane from its label's first word ("<module>-p07-tests"), or null when the word names none. */
+export const laneOf = (label = '', words = { [SUPER]: SUPER }) => words[String(label).trim().split(/[-\s_]/)[0].toLowerCase()] ?? null;
+
+/** The lane a lock or ticket counts against: none for the super, a job that runs alone, or a label that names no lane. */
+const countedLane = (held) => (!held || held.alone || !held.lane || held.lane === SUPER ? null : held.lane);
 
 export function slotDir(env = process.env) {
   return env.FACTORY_SLOTS ?? path.join(env.LOCALAPPDATA ?? os.tmpdir(), 'software-factory', 'slots');
@@ -44,6 +68,8 @@ export function pollMs(env = process.env) {
   return Number(env.FACTORY_SLOTS_POLL_MS ?? 5_000);
 }
 
+const staleMs = () => Number(process.env.FACTORY_SLOTS_STALE_MS ?? STALE_MS);
+
 export function alive(pid) {
   try { process.kill(pid, 0); return true; } catch (e) { return e.code === 'EPERM'; }
 }
@@ -52,12 +78,69 @@ function readLock(file) {
   try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; }
 }
 
-const aloneFile = (dir) => path.join(dir, 'alone-waiting.lock');
+/** A held file lives while its process answers and its holder has touched it within the stale time. */
+export function holds(file, held, isAlive = alive, now = Date.now()) {
+  if (!held || !held.pid || !isAlive(held.pid)) return false;
+  try { return now - fs.statSync(file).mtimeMs < staleMs(); } catch { return false; }
+}
 
-/** The live job that is waiting to run alone, or null; a marker whose process is gone is removed. */
+/** Keeps a file fresh while its holder lives. */
+export function touch(file) {
+  try { const t = new Date(); fs.utimesSync(file, t, t); } catch { /* released meanwhile */ }
+}
+
+export function release(file) {
+  try { fs.unlinkSync(file); } catch { /* already gone */ }
+}
+
+const aloneFile = (dir) => path.join(dir, 'alone-waiting.lock');
+const queueDir = (dir, kind) => path.join(dir, `${kind}-queue`);
+
+/** Joins the queue for a kind of slot; answers the ticket, to release once the slot is held. */
+export function joinQueue(kind, label, { dir = slotDir(), pid = process.pid, at = Date.now(), lane = null } = {}) {
+  fs.mkdirSync(queueDir(dir, kind), { recursive: true });
+  const file = path.join(queueDir(dir, kind), `${String(at).padStart(15, '0')}-${pid}.json`);
+  fs.writeFileSync(file, JSON.stringify({ pid, label, lane, at: new Date(at).toISOString() }));
+  return file;
+}
+
+/** The live tickets of a kind, earliest first; dead ones are removed. */
+function tickets(kind, { dir, isAlive }) {
+  if (!fs.existsSync(queueDir(dir, kind))) return [];
+  const out = [];
+  for (const f of fs.readdirSync(queueDir(dir, kind)).sort()) {
+    const file = path.join(queueDir(dir, kind), f);
+    const held = readLock(file);
+    if (holds(file, held, isAlive)) out.push(held); else release(file);
+  }
+  return out;
+}
+
+/** The live ticket at the head of a kind's queue, or null. */
+export function queueHead(kind, { dir = slotDir(), isAlive = alive } = {}) {
+  return tickets(kind, { dir, isAlive })[0] ?? null;
+}
+
+/** How many live heavy slots each lane holds now. */
+export function laneCounts({ dir = slotDir(), isAlive = alive } = {}) {
+  const counts = {};
+  for (const l of list({ dir, isAlive })) {
+    const lane = l.live && l.slot.startsWith('heavy-') ? countedLane(l) : null;
+    if (lane) counts[lane] = (counts[lane] ?? 0) + 1;
+  }
+  return counts;
+}
+
+/** The ticket that may take a heavy slot now: the earliest live one whose lane is under its share. */
+export function nextHeavy({ dir = slotDir(), isAlive = alive, laneHeavy = limits().laneHeavy } = {}) {
+  const counts = laneCounts({ dir, isAlive });
+  return tickets('heavy', { dir, isAlive }).find((t) => { const lane = countedLane(t); return !lane || (counts[lane] ?? 0) < laneHeavy; }) ?? null;
+}
+
+/** The live job that is waiting to run alone, or null; a dead marker is removed. */
 export function aloneWaiter({ dir = slotDir(), isAlive = alive } = {}) {
   const held = readLock(aloneFile(dir));
-  if (held && isAlive(held.pid)) return held;
+  if (holds(aloneFile(dir), held, isAlive)) return held;
   if (held) release(aloneFile(dir));
   return null;
 }
@@ -77,35 +160,44 @@ export function announceAlone(label, { dir = slotDir(), pid = process.pid, isAli
 }
 
 /**
- * Tries once to take a slot of a kind; answers the lock file taken, or null when every slot is held by a live process,
- * or when a heavy slot is asked for while another process waits to run alone.
+ * Tries once to take a slot of a kind; answers the lock file taken, or null when every slot is held by a live process;
+ * when a heavy slot is asked for while another job waits to run alone; when an earlier live ticket goes first; or when
+ * the job's lane holds its share of heavy slots already.
  */
-export function tryTake(kind, label, { dir = slotDir(), pid = process.pid, isAlive = alive, max = limits()[kind] } = {}) {
+export function tryTake(kind, label, { dir = slotDir(), pid = process.pid, isAlive = alive, max, laneHeavy, lane = null, alone = false } = {}) {
+  const lim = (max === undefined || laneHeavy === undefined) ? limits() : null;
+  max ??= lim[kind];
+  laneHeavy ??= lim.laneHeavy;
   fs.mkdirSync(dir, { recursive: true });
-  if (kind === 'heavy') { const waiting = aloneWaiter({ dir, isAlive }); if (waiting && waiting.pid !== pid) return null; }
+  const waiting = kind === 'heavy' ? aloneWaiter({ dir, isAlive }) : null;
+  if (waiting && waiting.pid !== pid) return null;
+  const mine = countedLane({ lane, alone });
+  if (kind === 'heavy' && mine && (laneCounts({ dir, isAlive })[mine] ?? 0) >= laneHeavy) return null;
+  // A job waiting to run alone went first by its marker; every other job waits behind the earliest ticket it may not pass.
+  if (!(waiting && waiting.pid === pid)) {
+    const head = kind === 'heavy' ? nextHeavy({ dir, isAlive, laneHeavy }) : queueHead(kind, { dir, isAlive });
+    if (head && head.pid !== pid) return null;
+  }
   for (let n = 1; n <= max; n++) {
     const file = path.join(dir, `${kind}-${n}.lock`);
     const held = readLock(file);
-    if (held && isAlive(held.pid)) continue;
-    if (held) { try { fs.unlinkSync(file); } catch { /* another taker removed it first */ } }
+    if (holds(file, held, isAlive)) continue;
+    if (held) release(file);
     try {
-      fs.writeFileSync(file, JSON.stringify({ pid, label, at: new Date().toISOString() }), { flag: 'wx' });
+      fs.writeFileSync(file, JSON.stringify({ pid, label, lane, ...(alone ? { alone: true } : {}), at: new Date().toISOString() }), { flag: 'wx' });
       return file;
     } catch { /* another taker won this slot; try the next */ }
   }
   return null;
 }
 
-export function release(file) {
-  try { fs.unlinkSync(file); } catch { /* already gone */ }
-}
-
-/** Every slot held now, live or stale; the waiting marker is not a slot. */
+/** Every slot held now, live or stale, with its holder's lane; the waiting marker is not a slot. */
 export function list({ dir = slotDir(), isAlive = alive } = {}) {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir).filter((f) => /^(ci|heavy)-\d+\.lock$/.test(f)).sort().map((f) => {
-    const held = readLock(path.join(dir, f)) ?? {};
-    return { slot: f.replace('.lock', ''), ...held, live: held.pid ? isAlive(held.pid) : false };
+    const file = path.join(dir, f);
+    const held = readLock(file) ?? {};
+    return { slot: f.replace('.lock', ''), ...held, lane: held.lane ?? null, live: holds(file, held, isAlive) };
   });
 }
 
@@ -136,7 +228,7 @@ export function waitingJobs({ dir = slotDir(), isAlive = alive } = {}) {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir).filter((f) => /^waiting-\d+\.json$/.test(f)).map((f) => {
     const w = readLock(path.join(dir, f)) ?? {};
-    return { ...w, live: w.pid ? isAlive(w.pid) : false };
+    return { ...w, live: holds(path.join(dir, f), w, isAlive) };
   });
 }
 
@@ -161,37 +253,57 @@ export async function main(argv, env = process.env) {
   const [kind, ...rest] = argv;
   const dir = slotDir(env);
   if (kind === 'list') {
-    for (const l of list({ dir })) console.log(`${l.slot} ${l.live ? 'live' : 'stale'} ${l.label ?? ''} ${l.at ?? ''}`);
+    for (const l of list({ dir })) console.log(`${l.slot} ${l.live ? 'live' : 'stale'} lane ${l.alone ? 'alone' : l.lane ?? '-'} ${l.label ?? ''} ${l.at ?? ''}`);
     const waiting = aloneWaiter({ dir });
     if (waiting) console.log(`waiting to run alone: ${waiting.label ?? ''} ${waiting.at ?? ''}`);
     for (const w of waitingJobs({ dir })) if (w.live) console.log(`waiting: ${w.kind} ${w.label ?? ''} since ${w.since}`);
     return 0;
   }
   const max = limits(env);
-  if (!(kind in DEFAULTS)) { console.error('usage: slots.mjs ci|heavy [--alone] [--label <words>] -- <command> | slots.mjs list'); return 2; }
+  if (!(kind in DEFAULTS)) { console.error('usage: slots.mjs ci|heavy [--alone] [--lane <lane>] [--label <words>] -- <command> | slots.mjs list'); return 2; }
   const sep = rest.indexOf('--');
-  const li = rest.indexOf('--label');
-  const label = li >= 0 && li < sep ? rest[li + 1] : 'unnamed';
+  const before = sep < 0 ? rest : rest.slice(0, sep);
+  const value = (flag) => { const i = before.indexOf(flag); return i >= 0 ? before[i + 1] : undefined; };
+  const label = value('--label') ?? 'unnamed';
   const cmd = sep < 0 ? [] : rest.slice(sep + 1);
   if (!cmd.length) { console.error('slots: no command after --'); return 2; }
+  const words = laneWords();
+  const named = value('--lane');
+  const known = new Set(Object.values(words));
+  if (named !== undefined && known.size > 1 && !known.has(named)) { console.error(`slots: --lane is one of ${[...known].join(', ')}, not ${named}`); return 2; }
+  const lane = named ?? laneOf(label, words);
+  const alone = before.includes('--alone');
   const poll = pollMs(env);
   const held = [];
   const asked = new Date().toISOString();
   fs.mkdirSync(dir, { recursive: true });
   const waitFile = path.join(dir, `waiting-${process.pid}.json`);
-  fs.writeFileSync(waitFile, JSON.stringify({ pid: process.pid, label, kind, since: asked }));
-  const free = () => { held.splice(0).forEach(release); release(waitFile); };
+  fs.writeFileSync(waitFile, JSON.stringify({ pid: process.pid, label, kind, lane, since: asked }));
+  held.push(waitFile);
+  // Every file this job holds is touched while it lives, so a dead job's files go stale even when its process id is reused.
+  const keepFresh = setInterval(() => held.forEach(touch), Math.min(TOUCH_MS, Math.max(50, staleMs() / 4)));
+  keepFresh.unref();
+  const drop = (file) => { const i = held.indexOf(file); if (i >= 0) held.splice(i, 1); release(file); };
+  const free = () => { clearInterval(keepFresh); held.splice(0).forEach(release); };
   for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { free(); process.exit(130); });
-  if (kind === 'ci') held.push(await waitFor('a ci slot', label, poll, () => tryTake('ci', label, { dir, max: max.ci })));
+  const take = (k) => () => tryTake(k, label, { dir, max: max[k], laneHeavy: max.laneHeavy, lane, alone: k === 'heavy' && alone });
+  if (kind === 'ci') {
+    const ticket = joinQueue('ci', label, { dir, lane });
+    held.push(ticket);
+    held.push(await waitFor('a ci slot', label, poll, take('ci')));
+    drop(ticket);
+  }
   // --alone: take every heavy slot, so nothing else heavy runs beside it (a CI whose timed tests need a quiet machine).
-  const alone = rest.includes('--alone') && rest.indexOf('--alone') < sep;
   const n = alone ? max.heavy : 1;
-  // Said after the ci slot is held; the marker goes once every heavy slot is held.
+  // Said after the ci slot is held; the marker goes once every heavy slot is held. A job that does not run alone takes a ticket.
   const marker = alone ? await waitFor('its turn to run alone', label, poll, () => announceAlone(label, { dir })) : null;
   if (marker) held.push(marker);
-  for (let i = 0; i < n; i++) held.push(await waitFor('a heavy slot', label, poll, () => tryTake('heavy', label, { dir, max: max.heavy })));
-  if (marker) release(held.splice(held.indexOf(marker), 1)[0]);
-  release(waitFile);
+  const ticket = alone ? null : joinQueue('heavy', label, { dir, lane });
+  if (ticket) held.push(ticket);
+  for (let i = 0; i < n; i++) held.push(await waitFor('a heavy slot', label, poll, take('heavy')));
+  if (ticket) drop(ticket);
+  if (marker) drop(marker);
+  drop(waitFile);
   const started = new Date().toISOString();
   const code = await new Promise((resolve) => {
     const child = spawn(cmd.map(quote).join(' '), { stdio: 'inherit', shell: true, env: { ...env, FACTORY_HEAVY_SLOTS: String(n) } });

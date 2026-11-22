@@ -12,6 +12,8 @@ import { beat } from './heartbeat.mjs';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fresh = () => fs.mkdtempSync(path.join(os.tmpdir(), 'factory-slots-'));
 const allAlive = () => true;
+/** Every file left in the slot folder, the queues' tickets included: a freed job leaves only its log line. */
+const leftovers = (dir) => fs.readdirSync(dir, { recursive: true }).filter((f) => fs.statSync(path.join(dir, f)).isFile()).map((f) => f.split(path.sep).join('/'));
 
 test('one ci slot: a second taker gets none while the first lives', () => {
   const dir = fresh();
@@ -43,11 +45,11 @@ test('list names each holder and whether it lives', () => {
 
 test('limits come from the environment, then factory/harness.json, then the defaults', () => {
   const root = fresh();
-  assert.deepEqual(limits({}, root), DEFAULTS);
+  assert.deepEqual(limits({}, root), { ...DEFAULTS, laneHeavy: 2 });
   fs.mkdirSync(path.join(root, 'factory'));
   fs.writeFileSync(path.join(root, 'factory', 'harness.json'), JSON.stringify({ slots: { heavy: 2 } }));
-  assert.deepEqual(limits({}, path.join(root, 'factory')), { ci: 1, heavy: 2 });
-  assert.deepEqual(limits({ FACTORY_SLOTS_CI: '2' }, root), { ci: 2, heavy: 2 });
+  assert.deepEqual(limits({}, path.join(root, 'factory')), { ci: 1, heavy: 2, laneHeavy: 1 });
+  assert.deepEqual(limits({ FACTORY_SLOTS_CI: '2' }, root), { ci: 2, heavy: 2, laneHeavy: 1 });
 });
 
 test('run whole: the command runs in a slot, its exit code comes back, and the slot is freed', () => {
@@ -55,7 +57,7 @@ test('run whole: the command runs in a slot, its exit code comes back, and the s
   const env = { ...process.env, FACTORY_SLOTS: dir };
   const r = spawnSync(process.execPath, [path.join(here, 'slots.mjs'), 'ci', '--label', 'p01', '--', 'node', '-e', 'process.exit(3)'], { env, encoding: 'utf8' });
   assert.equal(r.status, 3);
-  assert.deepEqual(fs.readdirSync(dir), ['log.jsonl'], 'the slots are freed; only the job log stays');
+  assert.deepEqual(leftovers(dir), ['log.jsonl'], 'the slots are freed; only the job log stays');
   assert.equal(spawnSync(process.execPath, [path.join(here, 'slots.mjs'), 'ci', '--label', 'x'], { env, encoding: 'utf8' }).status, 2);
 });
 
@@ -135,7 +137,7 @@ test('run whole: the command is told how many heavy slots it holds, one or with 
   const slots = (...a) => spawnSync(process.execPath, [path.join(here, 'slots.mjs'), ...a, '--', ...heldSlots], { env, encoding: 'utf8' });
   assert.equal(slots('heavy', '--label', 'build').status, 1);
   assert.equal(slots('ci', '--alone', '--label', 'p01').status, 4);
-  assert.deepEqual(fs.readdirSync(dir), ['log.jsonl'], 'every slot and the waiting marker are freed');
+  assert.deepEqual(leftovers(dir), ['log.jsonl'], 'every slot and the waiting marker are freed');
   const [build, ci] = logOf(dir);
   assert.deepEqual([build.kind, build.alone, build.label, build.code], ['heavy', false, 'build', 1]);
   assert.deepEqual([ci.kind, ci.alone, ci.label, ci.code], ['ci', true, 'p01', 4]);
@@ -156,7 +158,7 @@ test('run whole: a CI asking to run alone says it waits, nothing passes it by, a
     assert.equal(tryTake('heavy', 'another-build', { dir, pid: process.pid, max: 2 }), null, 'the slot just freed is kept for the waiting CI');
     assert.equal(await ended, 2);
   } finally { child.kill(); }
-  assert.deepEqual(fs.readdirSync(dir), ['log.jsonl']);
+  assert.deepEqual(leftovers(dir), ['log.jsonl']);
   assert.deepEqual([logOf(dir)[0].alone, logOf(dir)[0].code], [true, 2]);
 });
 
@@ -221,7 +223,7 @@ test('a job waiting for its slots says so until it starts, and list shows it', a
   const w = waitingJobs({ dir });
   assert.deepEqual([w.length, w[0]?.label, w[0]?.kind, w[0]?.live], [1, 'second', 'ci', true]);
   assert.match(spawnSync(process.execPath, [path.join(here, 'slots.mjs'), 'list'], { env, encoding: 'utf8' }).stdout, /waiting: ci second since/);
-  for (const f of fs.readdirSync(dir).filter((n) => n.startsWith('ci-'))) fs.unlinkSync(path.join(dir, f));
+  for (const f of fs.readdirSync(dir).filter((n) => /^ci-\d+\.lock$/.test(n))) fs.unlinkSync(path.join(dir, f));
   const code = await new Promise((r) => child.on('exit', r));
   assert.equal(code, 0);
   assert.deepEqual(waitingJobs({ dir }), [], 'gone once it ran');
@@ -232,7 +234,7 @@ test('run from a worktree, the slot script runs the main checkout\'s copy instea
   const git = (...a) => spawnSync('git', a, { cwd: root, encoding: 'utf8' });
   const tools = path.join(root, 'factory', 'tools');
   fs.mkdirSync(tools, { recursive: true });
-  fs.copyFileSync(path.join(here, 'slots.mjs'), path.join(tools, 'slots.mjs'));
+  for (const f of ['slots.mjs', 'config.mjs']) fs.copyFileSync(path.join(here, f), path.join(tools, f));
   git('add', '.');
   git('-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-q', '-m', 'tools');
   const wt = path.join(fresh(), 'wt');
