@@ -36,6 +36,12 @@
   },
   "generated": { "paths": ["<a regular expression for a generated path, e.g. /Generated/>"] },
   "merge": { "prefix": "records", "trailer": "" },
+  "sweep": {
+    "emptyFallback": { "files": "<code files, e.g. \\.cs$>", "call": "<a call to another module's interface, e.g. \\b\\w+Source\\.\\w+Async\\b>", "empty": "<an empty or false fallback, e.g. \\?\\?\\s*(\\[\\]|false\\b)>" },
+    "wordFiles": "<the word (string) files, e.g. (^|/)strings\\.json$>",
+    "catalogue": { "files": "<the files of role and status constants, generated ones included>", "constant": "<captures a constant's name and value, e.g. (\\w+)\\s*=\\s*\"([a-z][a-z -]*)\">", "code": "<code files>" },
+    "builtButDesigned": { "files": "<migration files, e.g. \\.sql$>", "creates": "create table (?:if not exists )?([a-z_]+\\.[a-z_]+)", "design": "<the design files that list tables>", "designed": "<a row still marked designed, {name} the table>" }
+  },
   "ciPattern": "<a regular expression that matches the CI command, e.g. scripts/ci\\.mjs>",
   "slots": { "ci": 1, "heavy": 3, "laneHeavy": 2 },
   "lanes": { "main": "super", "<the first word of a job label, e.g. a module name>": "<its lane, e.g. A>" },
