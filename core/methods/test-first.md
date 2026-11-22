@@ -16,4 +16,4 @@ Rules 1 to 4 are for builders; rules 5 to 13 for everyone who writes a test.
 12. **Nothing changed on shared test state is left changed:** the clock, switches and fakes are put back.
 13. **A flaky test is set aside the same day** and diagnosed by `diagnosing.md`; it is never retried until green.
 
-Check: every criterion has one sealed test that names it, and a second only under rule 8; every test has been seen to fail.
+Check: every criterion has the proof its row in the proof table names (`proof-table.md`): one sealed test that names it for a `once` row, a second only under rule 8, none for a `none` row; every test has been seen to fail.

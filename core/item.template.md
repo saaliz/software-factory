@@ -11,6 +11,10 @@
 
 <!-- Optional. One line per decision file in factory/decisions/ that answers a gap of this work item. The council skill adds them. -->
 
+## Proof
+
+<!-- Filled before any test is written, by factory/methods/proof-table.md: a table with one row per criterion and the columns Claim, Level (always, once, none), Proof, Catches, Misses. -->
+
 ## Seal
 
 <!-- Left empty until `node factory/tools/seal.mjs work/NN-words <test paths>` has written seal.json; then name the sealed paths and the tests' command here. -->

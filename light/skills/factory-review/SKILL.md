@@ -5,7 +5,7 @@ description: Review step of a work item. A fresh session that did not build it r
 
 # Review
 
-Follow `factory/methods/every-step.md` and `factory/methods/review.md`. Model: the high tier, and another vendor's model where one is at hand. Never the session that built it.
+Follow `factory/methods/every-step.md`, `factory/methods/review.md` and `factory/methods/proof-table.md`, rules 6 to 8. Model: the high tier, and another vendor's model where one is at hand. Never the session that built it.
 
 ## Start
 
@@ -19,6 +19,8 @@ Follow `factory/methods/every-step.md` and `factory/methods/review.md`. Model: t
 
 ## Do
 
+- First the table under `## Proof` in `item.md`: a "Never wrong" criterion below `always`, a blank row, a test that names no fault it would catch, or a proof that could not fail is a must-fix finding. So is a change the build made to anything that judges the work, unless its note gives a reason you accept.
+- Show the proofs can fail. For each `none` row: break the claim, run the check the row names, see it red, put the code back, write the command beside the row. Then plant small faults in the changed code only (the project's tool; with none, by hand, one for each `always` row) and run the sealed tests. A check that stays green, or a planted fault no test catches, is a must-fix finding for whoever wrote the tests, not for the builder. Leave the tree as you found it.
 - The two readings of `review.md`: standards, then spec.
 - Look hardest at permissions, personal data, migrations and anything that cannot be undone.
 - Skip what the gate, the seal and the tests already hold.
@@ -32,7 +34,7 @@ Check each earlier must-fix finding against the commits made since that review, 
 ## Done means
 
 - The first line under `## Review` in `item.md` is `clear`, or `not clear:` and the worst finding with its file and line. The findings follow, each "must fix before release" or "can follow".
-- Anything but `clear` sends the work item back to the build, or to the owner: say which.
+- Anything but `clear` sends the work item back to the build, to whoever wrote the tests, or to the owner: say which.
 
 ## Commit
 

@@ -7,6 +7,7 @@ Each file is one method a skill or a brief names by path. The method holds the s
 | `every-step.md` | every step skill |
 | `writing-for-agents.md` | anyone writing a brief, a skill or `AGENTS.md` |
 | `test-first.md` | sealed-test writers (rules 5 to 13) and builders (all) |
+| `proof-table.md` | whoever proves a piece of work, before the first test; the builder and the reviewer after: one row a claim, its level (always, once, none), its proof, what that catches and misses. For new behaviour, repairs, refactors, tools, data changes and records. Proposed, not yet run |
 | `affected-testing.md` | repair builders and reviewers: exact changed-behavior regressions, direct contracts and separate full checkpoints |
 | `diagnosing.md` | any session given a defect, a flaky test or something slow |
 | `review.md` | every review |
@@ -41,4 +42,4 @@ The pairings are by each skill's own description; try a pairing on one work item
 
 ## Credits
 
-`writing-for-agents`, `test-first`, `diagnosing`, `review`, `handoff`, `retro`, `deep-modules` and `questionnaire` are adapted in this kit's own words from Matt Pocock's skills (`github.com/mattpocock/skills`), MIT licence, copyright (c) 2026 Matt Pocock. The licence's permission notice applies to the adapted parts; see `THIRD-PARTY.md` at the kit's root.
+`writing-for-agents`, `test-first`, `diagnosing`, `review`, `handoff`, `retro`, `deep-modules` and `questionnaire` are adapted in this kit's own words from Matt Pocock's skills (`github.com/mattpocock/skills`), MIT licence, copyright (c) 2026 Matt Pocock; so is one idea in `proof-table` (agreeing where the tests go before writing them, with what each catches and misses, from his `tdd` skill). The licence's permission notice applies to the adapted parts; see `THIRD-PARTY.md` at the kit's root.

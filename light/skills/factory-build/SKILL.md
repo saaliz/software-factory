@@ -21,7 +21,9 @@ Follow `factory/methods/every-step.md`, `factory/methods/test-first.md` and `fac
 
 - Criterion by criterion: a unit test, see it fail, the code, see it pass. Criteria that share one piece of code may share a cycle and a commit.
 - After each fix, run the changed-behavior regressions and small direct contract checks with reviewed exact mappings. Keep compile/type/static, seal, source and boundary checks. Run full sealed/package/project commands at the explicit build-delivery checkpoint, not after each repair.
-- A sealed test that looks wrong is a question, with the file, the line and what the requirement says. Carry on with the other criteria.
+- Solve it yourself: do not look for the answer in the history, in other branches or in copies of the tests.
+- Build to the table under `## Proof` in `item.md` (`factory/methods/proof-table.md`, rule 4). Change neither it nor anything that judges the work: the sealed tests, the test runner's settings, saved snapshots, the pipeline's and the linter's settings. Where one of those must change, name the file and the reason in the note for the reviewer.
+- A sealed test that looks wrong, or that disagrees with its criterion, is a question, with the file, the line and what the requirement says. Do not work around either. Carry on with the other criteria.
 - A failure you cannot explain in one probe goes through `factory/methods/diagnosing.md`.
 - At the end, with everything green, refactor once (`test-first.md`, rule 4).
 
