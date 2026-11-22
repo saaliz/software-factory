@@ -10,7 +10,7 @@ It comes from one real build (a 20-module system, 17 days, 34,700 model calls) a
 |---|---|---|
 | Who drives | One person, one session at a time | A super orchestrator over lane orchestrators; workers are subagents |
 | Where the process lives | Six skills that load only when called | A Claude Code plugin (six agents, three skills, five hooks), the super's rules, a brief per step, records |
-| Scripts | The gate, the seal, the token counter, and a way to ask another maker's model | Those, plus machine slots for CI and heavy jobs, a runner for test suites side by side, a heartbeat judged by merges, a throughput measure, a measure of who waited on whom, a sources check, and the interfaces of a scaffold and contract tests |
+| Scripts | The gate, the seal, the token counter, and a way to ask another maker's model | Those, plus machine slots for CI and heavy jobs, a runner for test suites side by side, a heartbeat judged by merges that nudges idle lanes, a throughput measure, a measure of who waited on whom, a sources check, the merge check, the super's merge and a lane's merge of the main branch, one package's sealed tests, a sweep before review, a lessons file, and the interfaces of a scaffold and contract tests |
 | Fits | One app or one module, a solo builder, starting today | Many modules, long unattended runs, two vendors, a team |
 | In this repository | **Yes: `light/`, installable now** | **Yes: `harness/`, installable now** with `--profile harness`; built, mostly not yet run outside its first project |
 

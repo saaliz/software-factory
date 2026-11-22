@@ -102,13 +102,15 @@ test('the harness profile installs the light one and the harness, and the light 
   assert.equal(written.length, plan({ profile: 'harness' }).length);
   for (const f of ['AGENTS.md', 'factory/tools/gate.mjs', 'factory/harness.json', 'factory/harness/super-rules.md', 'factory/harness/lane-brief.md',
     'factory/harness/lane-handover.md', 'factory/harness/briefs/sealed-tests.md', 'factory/harness/briefs/build.md', 'factory/harness/briefs/review.md',
-    'factory/tools/slots.mjs', 'factory/tools/side-by-side.mjs', 'factory/tools/throughput.mjs', 'factory/tools/waits.mjs', 'factory/tools/sources.mjs', 'factory/council/process-change.md', 'factory/methods/throughput.md', 'factory/methods/nobody-waits.md', 'factory/tools/heartbeat.mjs', 'factory/tools/claim-super.mjs', 'factory/records/.gitignore', '.claude/settings.json']) {
+    'factory/tools/slots.mjs', 'factory/tools/side-by-side.mjs', 'factory/tools/throughput.mjs', 'factory/tools/waits.mjs', 'factory/tools/sources.mjs', 'factory/council/process-change.md', 'factory/methods/throughput.md', 'factory/methods/nobody-waits.md', 'factory/tools/heartbeat.mjs', 'factory/tools/claim-super.mjs', 'factory/tools/config.mjs', 'factory/tools/merge-check.mjs', 'factory/tools/merge.mjs', 'factory/tools/merge-main.mjs', 'factory/tools/package-tests.mjs', 'factory/tools/sweep.mjs', 'factory/harness/lessons.md', 'factory/records/.gitignore', '.claude/settings.json']) {
     assert.ok(fs.existsSync(path.join(target, f)), f);
   }
   assert.ok(!written.some((f) => f.endsWith('.test.mjs')));
   const cfg = JSON.parse(fs.readFileSync(path.join(target, 'factory', 'harness.json'), 'utf8'));
   assert.deepEqual(Object.keys(cfg.sources), ['product', 'design', 'architecture', 'decisions']);
   assert.deepEqual(Object.keys(cfg.hooks), ['sealedTests', 'mainBranch', 'ciThroughSlot', 'forbiddenPaths', 'largeContext']);
+  assert.deepEqual(Object.keys(cfg.slots), ['ci', 'heavy', 'laneHeavy']);
+  for (const k of ['mergeCheck', 'generated', 'merge', 'sweep', 'lanes']) assert.ok(cfg[k], k);
   const settings = JSON.parse(fs.readFileSync(path.join(target, '.claude', 'settings.json'), 'utf8'));
   assert.equal(settings.enabledPlugins[PLUGIN], true);
   assert.equal(settings.extraKnownMarketplaces['software-factory'].source.source, 'directory');
@@ -196,4 +198,14 @@ test('installed, the harness guard refuses an edit to a test the installed seal 
   assert.match(hook({ file_path: 'tests/sealed/sign-in.test.js' }), /"permissionDecision":"deny"/);
   assert.match(hook({ file_path: 'tests/sealed/new.test.js' }), /"permissionDecision":"deny"/, 'a new file in a sealed folder');
   assert.equal(hook({ file_path: 'src/sign-in.js' }), '');
+});
+
+test('installed, the merge tools import what they need from factory/tools and print their usage', () => {
+  const target = fresh();
+  install(target, { profile: 'harness' });
+  for (const [tool, code] of [['merge.mjs', 2], ['package-tests.mjs', 2], ['sweep.mjs', 0]]) {
+    const r = run(target, `factory/tools/${tool}`);
+    assert.equal(r.status, code, `${tool}: ${r.stderr}`);
+    assert.match(r.stderr, /usage: node factory\/tools\//, tool);
+  }
 });
