@@ -14,9 +14,12 @@ prints `ok: last merge <n> minutes ago` (exit 0), or `act:` and one line per fin
 | a CI running | past 40 minutes | checks it; stops it if it is hung, and reruns it |
 | a job waiting for slots (`waiting-<pid>.json`) | past an hour | names its cause in `NOW.md` |
 | a green CI in the slot log after the last merge | any | chases its merge request |
-| a slot whose process is gone | any | clears it |
+| a slot whose process is gone, or whose file is not touched for two minutes | any | clears it |
+| a lane named in `lanes` holding no slot, waiting for none, with no job ended | an hour (`idleLaneMinutes`) | nudges it with its next package, or names what blocks it in `NOW.md` |
 
 The beat itself is the skill `/factory-harness:factory-heartbeat`: read the findings, act on each, note each in `NOW.md`, write one line to `heartbeat.log`, end.
+
+ONE HEARTBEAT. The super runs the only one; a lane runs none and is nudged by it. On the first project lanes that each kept a timer spent their turns on status notes that needed no reply (QUIET SUPER in `factory/harness/super-rules.md`).
 
 ## Make it durable: pick one
 

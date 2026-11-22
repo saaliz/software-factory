@@ -115,7 +115,7 @@ test('a job leaves one log line: what it waited and how long it ran', () => {
   const entry = logEntry({ kind: 'ci', alone: true, label: 'package-ci', asked: '2026-01-05T10:00:00.000Z', started: '2026-01-05T10:18:00.000Z', ended: '2026-01-05T10:40:30.000Z', code: 0 });
   assert.equal(entry.waitedSeconds, 1080);
   assert.equal(entry.ranSeconds, 1350);
-  assert.deepEqual(Object.keys(entry), ['kind', 'alone', 'label', 'asked', 'started', 'ended', 'waitedSeconds', 'ranSeconds', 'code']);
+  assert.deepEqual(Object.keys(entry), ['kind', 'alone', 'label', 'lane', 'asked', 'started', 'ended', 'waitedSeconds', 'ranSeconds', 'code']);
   writeLog(entry, dir);
   writeLog({ ...entry, label: 'second' }, dir);
   const lines = fs.readFileSync(path.join(dir, 'log.jsonl'), 'utf8').trim().split('\n').map((l) => JSON.parse(l));
@@ -255,4 +255,21 @@ test('claim-super reports a fresh claim and refuses when none was recorded', () 
   assert.equal(claim().status, 1);
   fs.writeFileSync(path.join(root, '.git', 'factory-super.json'), JSON.stringify({ session: 'abc', at: new Date().toISOString() }));
   assert.match(claim().stdout, /the super is session abc/);
+});
+
+test('the one heartbeat nudges a lane that holds no slot, waits for none and ended no job in the last hour', () => {
+  const root = fresh();
+  const now = Date.now(), M = 60_000;
+  const iso = (ms) => new Date(ms).toISOString();
+  const words = { alpha: 'A', beta: 'B', gamma: 'C', delta: 'D', main: 'super', super: 'super' };
+  const r = beat(root, {
+    now, cfg: {}, mergeAt: now - 10 * M, words,
+    locks: [{ slot: 'heavy-1', label: 'alpha-p02-build', live: true, at: iso(now - 5 * M) }],
+    waits: [{ label: 'x', lane: 'B', kind: 'heavy', since: iso(now - 2 * M), live: true }],
+    log: [{ kind: 'heavy', label: 'gamma-p01-tests', code: 0, ended: iso(now - 20 * M) }, { kind: 'heavy', label: 'main-ci', code: 1, ended: iso(now - 5 * M) }],
+  });
+  assert.deepEqual(r.findings, ['lane D idle with no job in the log: nudge it, with its next package or what blocks it']);
+  const later = beat(root, { now: now + 90 * M, cfg: { heartbeat: { noMergeHours: 9 } }, mergeAt: now, words, locks: [], waits: [], log: [{ kind: 'heavy', lane: 'C', label: 'x', code: 0, ended: iso(now) }] });
+  assert.ok(later.findings.includes('lane C idle 1.5 hours since its last job: nudge it, with its next package or what blocks it'), later.findings.join('\n'));
+  assert.equal(beat(root, { now, cfg: {}, mergeAt: now, locks: [], waits: [], log: [] }).ok, true, 'no lanes configured, no nudge');
 });

@@ -212,9 +212,9 @@ async function waitFor(what, label, poll, take) {
 }
 
 /** One job as its log line: how long it waited for its slots and how long it ran. */
-export function logEntry({ kind, alone, label, asked, started, ended, code }) {
+export function logEntry({ kind, alone, label, lane = null, asked, started, ended, code }) {
   const seconds = (a, b) => Math.round((new Date(b) - new Date(a)) / 1000);
-  return { kind, alone: Boolean(alone), label, asked, started, ended, waitedSeconds: seconds(asked, started), ranSeconds: seconds(started, ended), code };
+  return { kind, alone: Boolean(alone), label, lane, asked, started, ended, waitedSeconds: seconds(asked, started), ranSeconds: seconds(started, ended), code };
 }
 
 export function writeLog(entry, dir = slotDir()) {
@@ -311,7 +311,7 @@ export async function main(argv, env = process.env) {
     child.on('error', () => resolve(1));
   });
   free();
-  writeLog(logEntry({ kind, alone, label, asked, started, ended: new Date().toISOString(), code }), dir);
+  writeLog(logEntry({ kind, alone, label, lane, asked, started, ended: new Date().toISOString(), code }), dir);
   return code;
 }
 

@@ -52,5 +52,5 @@
   "hooks": { "sealedTests": true, "mainBranch": true, "ciThroughSlot": true, "forbiddenPaths": true, "largeContext": true },
   "largeContextTokens": 250000,
   "heartbeatMinutes": 30,
-  "heartbeat": { "noMergeHours": 2, "ciHungMinutes": 40, "waitHours": 1 }
+  "heartbeat": { "noMergeHours": 2, "ciHungMinutes": 40, "waitHours": 1, "idleLaneMinutes": 60 }
 }
