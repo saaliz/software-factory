@@ -19,7 +19,7 @@ prints `ok: last merge <n> minutes ago` (exit 0), or `act:` and one line per fin
 
 The beat itself is the skill `/factory-harness:factory-heartbeat`: read the findings, act on each, note each in `NOW.md`, write one line to `heartbeat.log`, end.
 
-ONE HEARTBEAT. The super runs the only one; a lane runs none and is nudged by it. On the first project lanes that each kept a timer spent their turns on status notes that needed no reply (QUIET SUPER in `factory/harness/super-rules.md`).
+ONE HEARTBEAT. The super runs the only one; a lane runs none and is nudged by it.
 
 ## Make it durable: pick one
 
