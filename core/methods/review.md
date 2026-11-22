@@ -10,5 +10,6 @@ For every fresh review of a work item before its release. The reviewer did not b
 4. **Each finding cites its evidence:** file and line, and the rule or the criterion's words quoted. Each is "must fix before release" or "can follow".
 5. **Report the two axes apart,** each ending in one line: the count, and the worst finding.
 6. **Scope the proof honestly.** Check affected selection reasons and direct contracts against the diff, including helpers, deletions and replacements. Targeted green does not replace independent QA, either semantic axis, or required full delivery/release checks (`factory/methods/affected-testing.md`).
+7. **Read the reseals.** `node factory/tools/seal.mjs work/<item> --check` prints each reseal with its reason and how many files it changed. A reseal after the build began that names no fault in the tests is a finding.
 
 Check: every finding has a file and line and a quoted rule or criterion; the verdict is "clear" only when neither axis has a must-fix finding.

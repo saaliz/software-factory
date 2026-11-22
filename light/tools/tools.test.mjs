@@ -25,12 +25,33 @@ test('a seal holds until a sealed file changes, vanishes or gains a neighbour', 
   assert.deepEqual(check(root, item).problems, []);
   fs.writeFileSync(path.join(root, 'tests', 'sealed', 'a.test.js'), 'assert(true)\n');
   assert.match(check(root, item).problems[0], /^changed: tests\/sealed\/a\.test\.js/);
-  seal(root, item, ['tests/sealed']);
+  seal(root, item, ['tests/sealed'], new Date(), 'the first assertion tested nothing');
   fs.writeFileSync(path.join(root, 'tests', 'sealed', 'b.test.js'), 'x\n');
   assert.match(check(root, item).problems[0], /^added after the seal/);
   fs.rmSync(path.join(root, 'tests', 'sealed', 'b.test.js'));
   fs.rmSync(path.join(root, 'tests', 'sealed', 'a.test.js'));
   assert.match(check(root, item).problems[0], /^gone/);
+});
+
+test('a second seal is refused unless it says why, and the reason and the change are kept', () => {
+  const root = project();
+  assert.throws(() => seal(root, item, ['tests/sealed'], new Date(), 'too early'), /not sealed yet/);
+  const first = seal(root, item, ['tests/sealed'], new Date('2026-01-01T00:00:00Z'));
+  assert.equal(first.reseals, undefined);
+  assert.deepEqual(check(root, item).reseals, []);
+  fs.writeFileSync(path.join(root, 'tests', 'sealed', 'a.test.js'), 'assert(true)\n');
+  fs.writeFileSync(path.join(root, 'tests', 'sealed', 'b.test.js'), 'assert(refused("y"))\n');
+  assert.throws(() => seal(root, item, ['tests/sealed']), /already sealed 2026-01-01T00:00:00\.000Z.*--reseal/);
+  assert.throws(() => seal(root, item, ['tests/sealed'], new Date(), '  '), /says why/);
+  // The refused attempts wrote nothing: the first seal still stands, and it is broken.
+  assert.equal(check(root, item).problems.length, 2);
+  seal(root, item, ['tests/sealed'], new Date('2026-01-02T00:00:00Z'), 'the refusal had no test');
+  const held = check(root, item);
+  assert.deepEqual(held.problems, []);
+  assert.deepEqual(held.reseals, [{ at: '2026-01-02T00:00:00.000Z', why: 'the refusal had no test', was: '2026-01-01T00:00:00.000Z',
+    changed: ['tests/sealed/a.test.js', 'tests/sealed/b.test.js'] }]);
+  seal(root, item, ['tests/sealed'], new Date('2026-01-03T00:00:00Z'), 'nothing changed');
+  assert.deepEqual(check(root, item).reseals.map((x) => [x.why, x.changed.length]), [['the refusal had no test', 2], ['nothing changed', 0]]);
 });
 
 test('a seal reads CRLF and LF as the same file', () => {
