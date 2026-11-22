@@ -86,6 +86,8 @@ The kit copies none. `core/methods/README.md` maps each job to one skill from Ad
 | Rerunning every merged package's sealed tests on the main branch | Being built on the first project; documented only |
 | What sets the line's ceiling (`core/methods/throughput.md`) | Measured once, on the first project, 14 November 2026: the machine, not the lanes. The slot script's waiting marker fixes a wait that was measured; test suites side by side are an estimate, not yet validated |
 | Who waits on whom, and hand-offs that do not wait (`core/methods/nobody-waits.md`, `waits.mjs`) | Measured once, on the first project, 14 and 15 November 2026: the day stopped on waiting, not on defects, and a contrarian council could not refute it. The six things that help are the council's order and **proposed, not yet run** there, except the slot script's one copy for every worktree |
+| Whether proven parts add up to something that runs (`core/methods/parts-not-whole.md`) | Measured once, on the second project, 22 November 2026, by a session that ran no test and with no council yet: one kind of request reached real code while 42 work items were recorded as built or accepted. Its five things that help are **proposed, not yet run** |
+| A second seal refused unless it says why (`seal.mjs --reseal`) | Built and tested here; **not yet run** on a project |
 | The harness's plugin, hooks, durable heartbeat and install | **Built, not yet run** on a project; tested here (`harness/README.md`) |
 
 ## The kit's own trial

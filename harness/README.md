@@ -40,7 +40,7 @@ Each is on by default. Switch one off in `factory/harness.json` (`hooks.<name>: 
 | `forbiddenPaths` | any tool call naming a path in `forbiddenPaths` | `FORBIDDEN` |
 | `largeContext` | nothing; warns the session and the person once each time the context passes another `largeContextTokens` | `CONTEXT` |
 
-Known limits: the shell checks read the command's text, so a write through a script file, or a merge through an alias, passes. The super's claim guards against mistakes, not a hostile session. A deliberate reseal runs with `FACTORY_HOOK_SEALED=off`.
+Known limits: the shell checks read the command's text, so a write through a script file, or a merge through an alias, passes. The super's claim guards against mistakes, not a hostile session. A deliberate reseal runs with `FACTORY_HOOK_SEALED=off` and says why: `seal.mjs work/<item> --reseal "<why>" <paths>`; a second seal without a reason is refused, and `--check` prints every reseal.
 
 ## Tests
 
