@@ -17,7 +17,7 @@
 
 ## Seal
 
-<!-- Left empty until `node factory/tools/seal.mjs work/NN-words <test paths>` has written seal.json; then name the sealed paths and the tests' command here. -->
+<!-- Left empty until `node factory/tools/seal.mjs work/NN-words --command "<the tests' command>" --whole "<the whole test command>" <test paths>` has written seal.json; then name the sealed paths and the tests' command here. -->
 
 ## Review
 

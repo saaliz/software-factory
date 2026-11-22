@@ -27,7 +27,7 @@ Follow `factory/methods/every-step.md`, `factory/methods/proof-table.md` and `fa
 
 - `## Proof` has a row for every criterion, none blank, every `always` row with its control and every `none` row naming what covers it; the note says who confirmed it.
 - Seal with the tests whatever else judges the work and this step set: the test runner's settings, saved snapshots.
-- `node factory/tools/seal.mjs work/NN-words <the tests' folder>` has written `seal.json`, and `## Seal` in `item.md` names the sealed paths and the command.
+- `node factory/tools/seal.mjs work/NN-words --command "<the tests' one command>" --whole "<the project's whole test command>" <the tests' folder>` has written `seal.json` with both commands in it (the gate runs them itself at delivery; leave out `--whole` only where the project has no other tests), and `## Seal` in `item.md` names the sealed paths and the command.
 - `node factory/tools/gate.mjs work/NN-words --can-start build` prints `build may start`.
 
 ## Commit

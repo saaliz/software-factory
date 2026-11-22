@@ -72,12 +72,18 @@ test('the installed tools walk one work item from the unfilled form to done', ()
 
   fs.mkdirSync(path.join(target, 'tests', 'sealed'), { recursive: true });
   fs.writeFileSync(path.join(target, 'tests', 'sealed', 'sign-in.test.js'), 'assert(signIn())\n');
-  assert.match(run(target, 'factory/tools/seal.mjs', 'work/01-sign-in', 'tests/sealed').stdout, /sealed 1 files/);
+  assert.match(run(target, 'factory/tools/seal.mjs', 'work/01-sign-in', '--command', 'node -e "process.exit(0)"', 'tests/sealed').stdout, /sealed 1 files/);
   assert.match(gate('--can-start', 'build').stdout, /build may start/);
-  assert.match(gate('--can-start', 'review').stdout, /review may start/);
+  // The review waits for the gate's own run of the command the seal names; a build note alone is a claim.
+  r = gate('--can-start', 'review');
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /not proven/);
   assert.equal(gate('--can-start', 'release').status, 1);
   assert.match(gate().stdout, /next: build/);
   fs.writeFileSync(path.join(item, '3-build.md'), 'built\n');
+  assert.match(gate().stdout, /next: prove/);
+  assert.match(gate('--prove').stdout, /sealed: exit 0[\s\S]*proven at/);
+  assert.match(gate('--can-start', 'review').stdout, /review may start/);
   assert.match(gate().stdout, /next: review/);
 
   fill('clear', '<!-- empty -->');

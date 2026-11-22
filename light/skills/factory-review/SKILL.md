@@ -9,7 +9,7 @@ Follow `factory/methods/every-step.md`, `factory/methods/review.md` and `factory
 
 ## Start
 
-`node factory/tools/gate.mjs work/NN-words --can-start review` must print `review may start`. The plain gate goes on printing `next: build` until a review writes `clear`; this command is the check.
+`node factory/tools/gate.mjs work/NN-words --can-start review` must print `review may start`. It refuses without the gate's own green run (`proof.json`) on the same seal and the same code; if it refuses, stop and say what it printed. The plain gate goes on printing `next: build` until a review writes `clear`; this command is the check.
 
 ## Read, and nothing more
 

@@ -36,6 +36,7 @@ Follow `factory/methods/every-step.md`, `factory/methods/test-first.md` and `fac
 
 - At build delivery, the required sealed tests' command is green, counted from its output.
 - `node factory/tools/seal.mjs work/NN-words --check` prints `the seal holds`.
+- Everything is committed, and then `node factory/tools/gate.mjs work/NN-words --prove` prints `proven at <commit>`: the gate runs the commands the seal names and keeps the result in `proof.json`. Your note saying green is a claim; the review cannot start without this run, and any commit after it means proving again.
 - The project's whole test command is green at its required build-delivery checkpoint. A targeted repair pass alone is never "done".
 
 ## Commit
