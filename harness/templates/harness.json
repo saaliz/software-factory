@@ -17,8 +17,25 @@
     "gate": "node factory/tools/gate.mjs",
     "ci": "<the project's CI command, e.g. node scripts/ci.mjs>",
     "scaffold": "<the skeleton generator, or empty until there is one: factory/harness/interfaces.md>",
-    "contracts": "<the contract tests and integration run, or empty: factory/harness/interfaces.md>"
+    "contracts": "<the contract tests and integration run, or empty: factory/harness/interfaces.md>",
+    "build": "<the build of the whole product, run on the main branch after each merge>",
+    "packageTests": "<one package's sealed tests only: <tests> is the sealed paths, <package> the work item folder>"
   },
+  "mergeCheck": {
+    "steps": [
+      { "name": "secrets and personal-data scan", "command": "<a scan of tracked files>" },
+      { "name": "sources", "command": "node factory/tools/sources.mjs" },
+      { "name": "the seal holds", "command": "node factory/tools/seal.mjs <package> --check" },
+      { "name": "build", "command": "<the build>" },
+      { "name": "sealed tests build", "command": "<the build of the sealed tests' project, when it is outside the build above>" },
+      { "name": "architecture checks", "command": "<the boundary and static checks>" },
+      { "name": "contract tests and integration run", "command": "<commands.contracts>", "containers": true }
+    ],
+    "modules": "<the folder whose subfolders are the modules the scaffold reads, e.g. docs/design/modules/>",
+    "web": { "path": "<the web app's folder, or empty>", "installed": "node_modules", "install": "npm ci --no-audit --no-fund", "check": "<its type and lint checks>", "tests": "<its tests>" }
+  },
+  "generated": { "paths": ["<a regular expression for a generated path, e.g. /Generated/>"] },
+  "merge": { "prefix": "records", "trailer": "" },
   "ciPattern": "<a regular expression that matches the CI command, e.g. scripts/ci\\.mjs>",
   "slots": { "ci": 1, "heavy": 3, "laneHeavy": 2 },
   "lanes": { "main": "super", "<the first word of a job label, e.g. a module name>": "<its lane, e.g. A>" },
