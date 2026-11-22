@@ -15,6 +15,7 @@ Each file is one method a skill or a brief names by path. The method holds the s
 | `throughput.md` | one session when the rate of criteria proven stalls, or before adding a lane or a machine |
 | `nobody-waits.md` | one session when every lane is busy and little merges, or after the rule for what proves a merge has changed |
 | `parts-not-whole.md` | one session when many work items are released and no journey runs, when reviewed branches pile up beside a held main branch, or before a whole test campaign |
+| `thick-cut.md` | the orchestrator and every brief of a cut, when criteria merge and nothing new can be done by a person: interfaces and skeletons once, the interface freeze and the screens once a milestone, then six steps a cut, back end proven before front end. Proposed, not yet run |
 | `deep-modules.md` | anyone designing or judging an interface |
 | `questionnaire.md` | questions for the owner or a human expert |
 
