@@ -77,7 +77,7 @@ The harness generalizes how its first project runs today. Each part is running t
 | The merge check, the super's merge and a lane's merge of the main branch (`merge-check.mjs`, `merge.mjs`, `merge-main.mjs`) | Running on one project since 15 November 2026 as that project's own scripts, not yet measured; these generalized copies are built and tested here on throwaway repositories, not yet run on a project |
 | One package's sealed tests and the sweep (`package-tests.mjs`, `sweep.mjs`) | Running on one project since 15 November 2026, not yet measured; generalized and tested here, the sweep's four kinds as patterns a project sets |
 | FEWER ROUNDS, ONE BUILDER A MODULE, every branch through the merge check, no chasing main, BUILD FIRST, ALL TESTS ALL FAILURES, the floor exception, one heartbeat that nudges idle lanes | Running on one project since 15 or 16 November 2026, not yet measured |
-| The lessons file | Written here from the first project's commits of 15 to 17 November 2026; each row's fix is in a script or a rule |
+| The lessons file | Written here from the first project's commits of 15 to 17 and 22 to 23 November 2026; each row's fix is in a script or a rule |
 | Slots: `ci --alone` and the waiting marker | Running on one project since 14 November 2026, measured once: before it, a CI waiting to run alone was passed by for 18.5 minutes |
 | Slots: run from the main checkout's copy | Running on one project since 14 November 2026, measured once: before it, a worktree's old copy held a CI back about 3 hours |
 | Slots: a log line per job, a 5-second poll, a waiting file per job | Running on one project since 14 November 2026, not yet measured |

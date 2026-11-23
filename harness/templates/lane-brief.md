@@ -6,15 +6,31 @@ ONE GOAL. Move your lane's modules through the package loop without stopping, pa
 
 MODEL the high tier. You hold no product context beyond your lane: read only what your step needs, and write it down in your lane's records, so a fresh lane orchestrator could take over from your files alone.
 
-READ FIRST: `factory/harness/super-rules.md` (it binds you, except where LANES gives the work to the super), `factory/harness.json`, your handover, your modules' `GAPS.md` and your lane's `sessions.md`. What went wrong before, and the fix that stopped it: `factory/harness/lessons.md`.
+## Steps
 
-THE LOOP, for each package:
-1. Sealed tests: `factory/harness/briefs/sealed-tests.md`, by the vendor that will not build it, a fresh writer each package.
-2. Build: `factory/harness/briefs/build.md`, contract first, by the module's one builder (ONE BUILDER A MODULE).
-3. Fresh review: `factory/harness/briefs/review.md`, readings until "clear"; must-fixes go back to the builder. Repair feedback is affected regressions plus direct contracts (`factory/methods/affected-testing.md`), with compile/static/seal/source/boundary checks; return compile feedback before handoff. Fresh workers get their brief and source pointers, not the whole lane history. Keep independent QA and both semantic review axes.
-4. Candidate: `candidate/<lane>-<package>` = the reviewed branch with the main branch merged in once, by `node factory/tools/merge-main.mjs`; rerun the scaffold for every module with a skeleton.
-5. The merge check on the candidate, through the slot: `node factory/tools/slots.mjs ci --label <module>-<package>-check -- node factory/tools/merge-check.mjs work/<lane>/<package>`, green on every step. Under BUILD FIRST it is `merge-check.mjs ... --build-first` through a heavy slot. At the candidate checkpoint the full CI still runs where the super's rules ask for it; targeted green cannot request a merge alone.
-6. Ask the super to merge the moment the check is green: send the five lines it wrote (FIVE-LINE REQUESTS). Never leave a green candidate unreported. Write your lane's records in the candidate; they reach the main branch with the merge.
+1. **Read in:** `factory/harness/super-rules.md` (it binds you, except where LANES gives the work to the super), `factory/harness.json`, your handover, your modules' `GAPS.md` and your lane's `sessions.md`. What went wrong before, and the fix that stopped it: `factory/harness/lessons.md`.
+   Done when: you can name your lane's next package and the step it is at.
+2. **The loop, for each package.** Each step goes to a subagent with its step brief, which names the skills that step loads (SKILLS, below).
+   1. Sealed tests: `factory/harness/briefs/sealed-tests.md`, by the vendor that will not build it, a fresh writer each package.
+      Done when: every sealed test fails at the behaviour, after its setup passed, and the seal holds.
+   2. Build: `factory/harness/briefs/build.md`, contract first, by the module's one builder (ONE BUILDER A MODULE). A blocked criterion is built around (BLOCKED ITEM, below).
+      Done when: `node factory/tools/package-tests.mjs work/<lane>/<package>` is green on every criterion not named blocked, and `3-build.md` names each blocked one with its missing piece.
+   3. Fresh review: `factory/harness/briefs/review.md`, readings until "clear"; must-fixes go back to the builder. Repair feedback is affected regressions plus direct contracts (`factory/methods/affected-testing.md`), with compile/static/seal/source/boundary checks; return compile feedback before handoff. Fresh workers get their brief and source pointers, not the whole lane history. Keep independent QA and both semantic review axes.
+      Done when: the review's verdict reads "clear".
+   4. Candidate: `candidate/<lane>-<package>` = the reviewed branch with the main branch merged in once, by `node factory/tools/merge-main.mjs`; rerun the scaffold for every module with a skeleton.
+      Done when: the merge is committed and every module's scaffold check reports nothing to change.
+   5. The merge check on the candidate, through the slot: `node factory/tools/slots.mjs ci --label <module>-<package>-check -- node factory/tools/merge-check.mjs work/<lane>/<package>`. Under BUILD FIRST it is `merge-check.mjs ... --build-first` through a heavy slot. At the candidate checkpoint the full CI still runs where the super's rules ask for it; targeted green cannot request a merge alone.
+      Done when: the merge check is green on every step.
+   6. Ask the super to merge the moment the check is green: send the five lines it wrote (FIVE-LINE REQUESTS). Write your lane's records in the candidate; they reach the main branch with the merge.
+      Done when: the request is sent, and no green candidate of yours is unreported.
+3. **Report** to the super by REPORT, below, at each merge request, each block and each question.
+   Done when: the note is sent and its last line says what is half-done.
+
+## Reference
+
+SKILLS. Every step brief names the skills its step loads, from `factory/methods/README.md`, and is written by `factory/methods/writing-for-agents.md`. A vendor with a skill loader loads each by name; one without reads the same `SKILL.md` by its path, the folder your handover names.
+
+BLOCKED ITEM. A criterion, or one drawn state or action of a screen, that cannot be finished because another module's piece is not built or no frozen contract carries it: the worker builds every other one, names the blocked item and its missing piece in the package's notes, and reports it; the step goes on. You decide it the same day: a named defect with a test, carried to the package or cut that brings the missing piece, or a question for the super when it is a seam change. On the first project, 23 November 2026, a builder stopped a whole step for one unsupported action; the ruling resumed every other screen and state.
 
 COMMANDS. The scripts hold the rules that used to be prose, so follow the commands and nothing is forgotten:
 - Heavy work: `node <main checkout>/factory/tools/slots.mjs heavy --label <module>-<package>-<step> -- <command>`. Tickets go first come, first served; no lane holds more than `slots.laneHeavy` heavy slots; the label's first word names the lane (`lanes` in `factory/harness.json`), or `--lane` does.
