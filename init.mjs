@@ -58,6 +58,7 @@ export function plan({ profile = 'light', marketplace } = {}) {
   const out = [
     ['AGENTS.md', { from: 'core/AGENTS.template.md' }],
     ['CLAUDE.md', { from: 'core/CLAUDE.template.md' }],
+    ['factory/build-order', { text: 'layered\n' }],
     ['factory/brief.md', { from: 'core/brief.template.md' }],
     ['factory/item.md', { from: 'core/item.template.md' }],
     ['factory/token-economy.md', { from: 'core/token-economy.md' }],

@@ -7,6 +7,10 @@ description: Second step of a work item. Write the proof table for the criteria 
 
 Follow `factory/methods/every-step.md`, `factory/methods/proof-table.md` and `factory/methods/test-first.md`, rules 5 to 13. Model: the high tier, because every assertion is a judgement.
 
+## Order
+
+Under `layered` (`factory/build-order`) this step comes after the build: the code exists. Write each test from the criteria, never from the code. Instead of showing it fails before the build, show it fails against a broken copy: remove the behaviour it checks, or apply the item's counterfactual, run it, see it fail after its marker, restore the copy uncommitted. A test that passes against the broken copy is rewritten. Then seal and run it against the built code; red results go to the builder.
+
 ## Read, and nothing more
 
 - The work item's `item.md` and `1-spec.md`, and every decision file `item.md` names under `## Answers`. A gap in `1-spec.md` with no answer there goes to the council skill before you write its test.

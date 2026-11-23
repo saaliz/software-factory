@@ -7,6 +7,10 @@ description: Build step of a work item. Turn its sealed tests green with the sma
 
 Follow `factory/methods/every-step.md`, `factory/methods/test-first.md` and `factory/methods/affected-testing.md`. Model: the middle tier, chosen by whoever started you; the high tier where a criterion touches rights, safety, money or something sent to a real person, or after two failed attempts. Keep this builder's context for repair passes; a fresh worker receives only its brief and source pointers. Return compile/type feedback before handing off.
 
+## Order
+
+`factory/build-order` decides. `layered` (the default): build the item's layer in the wave's current layer as `factory/methods/layered-build.md` sets it — contracts, then database, then seams (stubs refuse with "not built"), then logic — with unit tests only where the project already has them; no sealed tests exist yet, so "done" is the layer's check plus every existing test green. `tests-first`: the rest of this skill as written.
+
 ## Start
 
 `node factory/tools/gate.mjs work/NN-words --can-start build` must print `build may start`. If it does not, stop and say what it printed.
