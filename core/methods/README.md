@@ -6,6 +6,7 @@ Each file is one method a skill or a brief names by path. The method holds the s
 |---|---|
 | `every-step.md` | every step skill |
 | `writing-for-agents.md` | anyone writing a brief, a skill or `AGENTS.md` |
+| `layered-build.md` | the default order for every coding session: contracts, database, seams, logic, then sealed tests; layer checks, gap pre-flight and requirement audits |
 | `test-first.md` | sealed-test writers (rules 5 to 13) and builders (all) |
 | `affected-testing.md` | repair builders and reviewers: exact changed-behavior regressions, direct contracts and separate full checkpoints |
 | `diagnosing.md` | any session given a defect, a flaky test or something slow |
