@@ -14,7 +14,9 @@ It comes from one real build (a 20-module system, 17 days, 34,700 model calls) a
 | Fits | One app or one module, a solo builder, starting today | Many modules, long unattended runs, two vendors, a team |
 | In this repository | **Yes: `light/`, installable now** | **Yes: `harness/`, installable now** with `--profile harness`; built, mostly not yet run outside its first project |
 
-The core both share: one short entry file, the form of a brief, tests sealed before the build, the token counter, a handful of methods, and the council.
+The core both share: one short entry file, the form of a brief, a build order the gate enforces (by default layered: contracts, database, seams, logic, then tests sealed by a session that did not build; or tests sealed before the build), the token counter, a handful of methods, and the council.
+
+**Layered is new and not yet proven by a finished build.** It was adopted on 23 November 2026 in its first project to bring every layer's gaps forward; `core/methods/layered-build.md` holds it.
 
 ## Start
 

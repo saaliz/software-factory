@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { seal, check } from './seal.mjs';
-import { canStart, state, criteria, sections } from './gate.mjs';
+import { canStart, state, criteria, sections, buildOrder } from './gate.mjs';
 import { calls, claudeCall, claudeFolder, report } from './tokens.mjs';
 
 const project = () => {
@@ -81,6 +81,32 @@ test('the gate reads criteria and refuses a bad item file', () => {
   write(root, `## Criteria\n${Array.from({ length: 16 }, (_, i) => `- criterion ${i}`).join('\n')}\n## Seal\n## Review\n## Release\n`);
   assert.match(canStart(root, item, 'tests').reasons[0], /16 criteria/);
   assert.deepEqual(criteria(sections(ITEM())), ['A teacher signs in with her email', 'A wrong password is refused']);
+});
+
+test('the layered order builds first, then seals the tests, and still refuses review and release without a seal', () => {
+  const root = project();
+  write(root, ITEM());
+  fs.mkdirSync(path.join(root, 'factory'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'factory', 'build-order'), 'layered\n');
+  assert.equal(buildOrder(root), 'layered');
+  assert.equal(state(root, item).next, 'build');
+  assert.equal(canStart(root, item, 'build').ok, true);
+  assert.match(canStart(root, item, 'tests').reasons[0], /build comes first/);
+  assert.match(canStart(root, item, 'review').reasons[0], /not sealed/);
+  fs.writeFileSync(path.join(root, item, '3-build.md'), 'built\n');
+  assert.equal(state(root, item).next, 'tests');
+  assert.equal(canStart(root, item, 'tests').ok, true);
+  assert.match(canStart(root, item, 'release').reasons[0], /not sealed/);
+  seal(root, item, ['tests/sealed']);
+  assert.equal(state(root, item).next, 'review');
+  assert.equal(canStart(root, item, 'review').ok, true);
+  write(root, ITEM('clear'));
+  assert.equal(canStart(root, item, 'release').ok, true);
+  fs.writeFileSync(path.join(root, 'tests', 'sealed', 'a.test.js'), 'assert(true)\n');
+  assert.equal(state(root, item).next, 'stopped');
+  assert.equal(canStart(root, item, 'build').ok, false);
+  fs.writeFileSync(path.join(root, 'factory', 'build-order'), 'tests-later\n');
+  assert.throws(() => buildOrder(root), /layered, tests-first/);
 });
 
 test('the gate walks an item from tests to done, and stops on a broken seal', () => {
