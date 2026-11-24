@@ -31,6 +31,10 @@ Build steps are not criteria. They go in the item's note or brief as a checklist
 
 Rewrite an existing item's criteria to this standard only when that item is next to be built. Rewriting every item at once is the whole-plan rewrite this method exists to stop.
 
+## A set of work items
+
+When a whole set is written at once, as in a milestone rewrite, check the set by script before anyone reviews it: every operation, job or screen a criterion names is built by its item or by a prerequisite the item names; no criterion leans on work of a later release; no criterion is both claimed in full and claimed in part; nothing in the contracts of the release is left without an item. On the second project such a check read 430 criterion claims in seconds, after eight review rounds had sampled them a few dozen at a time. A deliberate exception is written next to the set with a reason a reviewer can check, and an exception whose finding no longer occurs fails the check. The kit has no general tool for this yet: the check reads one project's contract files.
+
 ## The script
 
 `criteria.mjs` runs only on items that have `## Objective`, so items written before this method are left alone. The gate runs it too: an item with `## Objective` takes no step, the build included, until it passes. It checks form, not meaning. Meaning is the review's job, against the objective, in one round.
