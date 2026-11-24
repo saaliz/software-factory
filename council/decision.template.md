@@ -45,3 +45,5 @@ On: <the sitting or the evidence it rests on>
 ```
 Confirmed by: <name>, <date>, <their words>
 ```
+
+The owner's words go on that line exactly as written, nothing added. A page that quotes them writes `"<words>" (factory/decisions/<file>.md)`, and `node factory/tools/quotes.mjs` checks the words are on the file's `Confirmed by:` line. Anything the author adds is marked as the author's.

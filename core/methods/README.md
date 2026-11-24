@@ -14,7 +14,7 @@ Each file is one method a skill or a brief names by path. The method holds the s
 | `test-first.md` | sealed-test writers (rules 5 to 13) and builders (all) |
 | `affected-testing.md` | repair builders and reviewers: exact changed-behavior regressions, direct contracts and separate full checkpoints |
 | `diagnosing.md` | any session given a defect, a flaky test or something slow |
-| `review.md` | every review |
+| `review.md` | every review, and whoever writes a review brief: the two axes, then rounds (one full review at the end, the delta after it, a stated bar) |
 | `handoff.md` | every final note |
 | `retro.md` | one short session after each release |
 | `throughput.md` | one session when the rate of criteria proven stalls, or before adding a lane or a machine |
