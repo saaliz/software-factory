@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "factory/decisions@1",
+  "title": "Decisions: open questions waiting on the owner",
+  "description": "Usually tmp/ci/decisions.json. Only open decisions; a decided one leaves the file and lives in its decision record.",
+  "type": "object",
+  "required": ["at", "decisions"],
+  "properties": {
+    "schema": { "const": "factory/decisions@1" },
+    "at": { "$ref": "common.v1.schema.json#/$defs/time" },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "question", "since"],
+        "properties": {
+          "id": { "type": "string" },
+          "question": { "type": "string", "description": "The decision, as one question the owner can answer." },
+          "since": { "$ref": "common.v1.schema.json#/$defs/time", "description": "When it started waiting." },
+          "cut": { "type": "string", "description": "The cut it blocks, if any." },
+          "blocks": { "$ref": "common.v1.schema.json#/$defs/stringList", "description": "What waits on the answer." },
+          "options": { "$ref": "common.v1.schema.json#/$defs/stringList" },
+          "recommended": { "type": "string" },
+          "file": { "type": "string", "description": "The file that holds the question, relative to the project." }
+        }
+      }
+    }
+  }
+}

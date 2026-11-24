@@ -1,0 +1,50 @@
+{
+ "schema": "factory/pulse@1",
+ "at": "2026-11-24T10:00:00Z",
+ "mainRed": false,
+ "walksMain": {
+  "commit": "abc1234",
+  "passed": true,
+  "at": "2026-11-24T09:00:00Z"
+ },
+ "alarms": [
+  "02-invoice: no commit for 3 h (refs/heads/cut/02)"
+ ],
+ "cuts": [
+  {
+   "name": "02-invoice",
+   "lane": "A",
+   "step": "built",
+   "stepLabel": "Built",
+   "ref": "cut/02",
+   "tip": "def5678",
+   "tipAt": "2026-11-24T08:00:00Z",
+   "waitsOn": [
+    "the owner: which tax rule applies"
+   ],
+   "stuck": false,
+   "workingHoursInStep": 6,
+   "sealed": {
+    "commit": "aaa",
+    "at": "2026-11-23T08:00:00Z",
+    "passed": 5,
+    "total": 8
+   }
+  }
+ ],
+ "envs": {
+  "a": {
+   "pid": 42,
+   "since": "2026-11-24T09:30:00Z"
+  },
+  "b": null
+ },
+ "running": [
+  {
+   "kind": "walk",
+   "pid": 42,
+   "started": "2026-11-24T09:30:00Z",
+   "what": "walk all --env a"
+  }
+ ]
+}

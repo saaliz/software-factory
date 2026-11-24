@@ -1,0 +1,135 @@
+{
+ "schema": "factory/progress@1",
+ "at": "2026-11-24T10:00:00Z",
+ "main": {
+  "commit": "abc1234"
+ },
+ "summary": "musts passed 29 of 100",
+ "musts": {
+  "modules": [
+   {
+    "id": "M1",
+    "name": "Accounts",
+    "musts": 40,
+    "passed": 20,
+    "held": 0,
+    "deferred": 1,
+    "failed": 2,
+    "built": 7,
+    "notBuilt": 10,
+    "percent": 50,
+    "stale": false
+   },
+   {
+    "id": "M2",
+    "name": "Billing",
+    "musts": 60,
+    "passed": 9,
+    "held": 0,
+    "deferred": 0,
+    "failed": 1,
+    "built": 10,
+    "notBuilt": 40,
+    "percent": 15,
+    "stale": false
+   }
+  ],
+  "total": {
+   "name": "All two",
+   "musts": 100,
+   "passed": 29,
+   "held": 0,
+   "deferred": 1,
+   "failed": 3,
+   "built": 17,
+   "notBuilt": 50,
+   "percent": 29,
+   "stale": false
+  }
+ },
+ "burnup": [
+  {
+   "date": "2026-11-18T10:00:00Z",
+   "passed": 5
+  },
+  {
+   "date": "2026-11-21T10:00:00Z",
+   "passed": 18
+  },
+  {
+   "date": "2026-11-24T10:00:00Z",
+   "passed": 29
+  }
+ ],
+ "cuts": {
+  "merged": 1,
+  "planned": 6,
+  "list": [
+   {
+    "name": "01-sign-in",
+    "lane": "A",
+    "step": "merged"
+   }
+  ]
+ },
+ "features": {
+  "usable": 1,
+  "of": 4
+ },
+ "optimization": [
+  {
+   "cut": "01-sign-in",
+   "lane": "A",
+   "step": "merged",
+   "cost": {
+    "tokens": 900000,
+    "mustsInCut": 10,
+    "mustsPassed": 10,
+    "tokensPerMustPassed": 90000
+   },
+   "time": {
+    "sealToMergeDays": 1.5,
+    "readings": 2
+   },
+   "quality": {
+    "reseals": 1,
+    "withdrawnRulings": 0,
+    "redsOnMainAfterMerge": 0,
+    "regressionsFound": 0
+   }
+  },
+  {
+   "cut": "02-invoice",
+   "lane": "A",
+   "step": "built",
+   "cost": {
+    "tokens": null,
+    "mustsInCut": 8,
+    "mustsPassed": 5,
+    "tokensPerMustPassed": null
+   },
+   "time": {
+    "sealToMergeDays": null,
+    "readings": 1
+   },
+   "quality": {
+    "reseals": 0,
+    "withdrawnRulings": 1,
+    "redsOnMainAfterMerge": 0,
+    "regressionsFound": 1
+   }
+  }
+ ],
+ "criteria": [
+  {
+   "module": "accounts",
+   "code": "R-1",
+   "state": "passed"
+  }
+ ],
+ "results": [
+  {
+   "file": "x"
+  }
+ ]
+}

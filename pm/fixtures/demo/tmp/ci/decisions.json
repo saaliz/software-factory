@@ -1,0 +1,21 @@
+{
+ "schema": "factory/decisions@1",
+ "at": "2026-11-24T10:00:00Z",
+ "decisions": [
+  {
+   "id": "D-7",
+   "question": "May a refund exceed the invoice?",
+   "since": "2026-11-23T12:00:00Z",
+   "cut": "03-refund",
+   "blocks": [
+    "03-refund"
+   ],
+   "options": [
+    "No",
+    "Yes, with approval"
+   ],
+   "recommended": "No",
+   "file": "work/03/gaps.md"
+  }
+ ]
+}
