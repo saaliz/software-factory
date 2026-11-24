@@ -2,9 +2,15 @@
 
 The default order for any session that writes code (`factory/build-order` holds `layered`). The other order, tests sealed before the build, is `tests-first`; the gate reads the file and enforces whichever it names.
 
+## The wave is one work item by default
+
+A wave is the set of work items built layer by layer together. By default a wave is **one work item**: a thick item that delivers one or more journey steps end to end (`user-journeys.md`), across every module those steps touch. The layers run inside it, and the item is shown working at the end of its own wave. A project may widen the wave to a whole milestone, to bring every module's gaps forward at once, by writing `milestone` in `factory/wave` (absent, or `item`, means one item). The cost: no journey runs until the last layer of the last module is done. The second project began with milestone-wide waves on 23 November 2026. On 24 November its owner moved new work to waves of one item, and kept the work already in progress wide.
+
+An item too thin to show anything (one table, one field, one rule with no caller) is joined to the first item that uses it.
+
 ## The layers
 
-Build a wave of work items one layer at a time, across all its modules, before the next layer starts:
+Build a wave one layer at a time, across all the modules it touches, before the next layer starts:
 
 | Layer | What it holds | Layer check (a script, not a new test) |
 |---|---|---|
