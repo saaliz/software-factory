@@ -20,6 +20,7 @@ Follow `factory/methods/every-step.md` and `factory/methods/review.md`. Model: t
 ## Do
 
 - The two readings of `review.md`: standards, then spec.
+- Where `item.md` has `## Objective`, the spec reading judges the work against that objective and its criteria, and nothing else (`factory/methods/objectives-and-criteria.md`). A defect made at an earlier step (a criterion that cannot fail, a contract missing an operation) is named with the step that made it, so it is fixed there (`factory/methods/factory-line.md`).
 - Look hardest at permissions, personal data, migrations and anything that cannot be undone.
 - Skip what the gate, the seal and the tests already hold.
 - An answer marked the owner's and not yet confirmed is a finding for the owner, listed apart from the two axes. It holds the release until the owner confirms it, and it does not go back to the build.

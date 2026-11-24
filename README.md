@@ -10,13 +10,15 @@ It comes from one real build (a 20-module system, 17 days, 34,700 model calls) a
 |---|---|---|
 | Who drives | One person, one session at a time | A super orchestrator over lane orchestrators; workers are subagents |
 | Where the process lives | Six skills that load only when called | A Claude Code plugin (six agents, three skills, five hooks), the super's rules, a brief per step, records |
-| Scripts | The gate, the seal, the token counter, and a way to ask another maker's model | Those, plus machine slots for CI and heavy jobs, a runner for test suites side by side, a heartbeat judged by merges, a throughput measure, a measure of who waited on whom, a sources check, and the interfaces of a scaffold and contract tests |
+| Scripts | The gate, the seal, the token counter, a way to ask another maker's model, the criteria check, the journey check with its walkthrough and trace matrix, and the orphan-branch report | Those, plus machine slots for CI and heavy jobs, a runner for test suites side by side, a heartbeat judged by merges, a throughput measure, a measure of who waited on whom, a sources check, and the interfaces of a scaffold and contract tests |
 | Fits | One app or one module, a solo builder, starting today | Many modules, long unattended runs, two vendors, a team |
 | In this repository | **Yes: `light/`, installable now** | **Yes: `harness/`, installable now** with `--profile harness`; built, mostly not yet run outside its first project |
 
 The core both share: one short entry file, the form of a brief, a build order the gate enforces (by default layered: contracts, database, seams, logic, then tests sealed by a session that did not build; or tests sealed before the build), the token counter, a handful of methods, and the council.
 
-**Layered is new and not yet proven by a finished build.** It was adopted on 23 November 2026 in its first project to bring every layer's gaps forward; `core/methods/layered-build.md` holds it.
+**Layered is new and not yet proven by a finished build.** It was adopted on 23 November 2026 in its first project to bring every layer's gaps forward; `core/methods/layered-build.md` holds it. Since 24 November its wave is one thick work item by default, so each item is shown working at the end of its own wave.
+
+**One line to the rollout (new, 24 November 2026).** Every work item opens with one objective sentence and criteria a user can observe, each with a counterfactual (`criteria.mjs` checks the form). It names the journey steps it proves, and one journey file per journey drives the end-to-end test, the walkthrough the owner signs and the trace matrix (`journeys.mjs`). A defect found late goes back to the step that made it. Every branch is registered and ends (`orphans.mjs`). The methods are `objectives-and-criteria.md`, `user-journeys.md`, `factory-line.md` and `branch-lifecycle.md`. They come from the second project's eight whole-plan audits, two full rewrites and 68 unmerged branches in six weeks.
 
 ## Start
 
@@ -83,6 +85,8 @@ The kit copies none. `core/methods/README.md` maps each job to one skill from Ad
 | One step per fresh session | Measured: a median of 146,000 tokens a call, against 372,000 for one long session |
 | Panels and councils voiced by one session | 16 sittings on the first project |
 | The light profile as a whole | Run end to end once, on a small trial work item (below). **Not yet run on a real project** |
+| Objectives and criteria check, journeys (check, walkthrough, trace), orphan-branch report | Built and tested on synthetic projects and Git repositories here, 24 November 2026. **Not yet run on a real project**; the second project's pilot is one milestone with one journey |
+| A wave of one thick work item, a defect sent back to the step that made it, measures of output, economy and time | Decided by the second project's owner, 24 November 2026, after a council; **not yet run** |
 | Affected repair planner and Node exact-file runner | Built and tested on synthetic Git repositories here; not yet run on a real project. No inferred call graph, other-stack adapter or full/E2E proof |
 | The harness's rules, lane brief and step briefs, slots, heartbeat by merges, throughput and sources scripts | Running on one project since 14 November 2026; a few parts measured once (`harness/README.md`). Before the lanes: ten packages of about 25 criteria merged in about 12 hours with Claude alone |
 | Rerunning every merged package's sealed tests on the main branch | Being built on the first project; documented only |
