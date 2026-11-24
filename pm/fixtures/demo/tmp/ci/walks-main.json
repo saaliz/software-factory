@@ -1,0 +1,25 @@
+{
+ "schema": "factory/walks@1",
+ "at": "2026-11-24T09:00:00Z",
+ "commit": "abc1234",
+ "passed": true,
+ "env": "a",
+ "walks": [
+  {
+   "name": "01-sign-in",
+   "passed": true,
+   "ms": 1200,
+   "steps": {
+    "en": {
+     "passed": 4,
+     "failed": 0
+    }
+   },
+   "tests": [
+    {
+     "title": "big"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "factory/walks@1",
+  "title": "Walks: the end-to-end walks run on one commit",
+  "description": "Usually tmp/ci/walks-main.json, the walks on the main branch.",
+  "type": "object",
+  "required": ["at", "commit", "passed", "walks"],
+  "properties": {
+    "schema": { "const": "factory/walks@1" },
+    "at": { "$ref": "common.v1.schema.json#/$defs/time" },
+    "commit": { "$ref": "common.v1.schema.json#/$defs/commit" },
+    "passed": { "type": "boolean" },
+    "env": { "type": "string" },
+    "walks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "passed"],
+        "properties": {
+          "name": { "type": "string" },
+          "passed": { "type": "boolean" },
+          "ms": { "type": "number" },
+          "steps": {
+            "type": "object",
+            "description": "Per language: steps passed and failed.",
+            "additionalProperties": { "type": "object", "properties": { "passed": { "type": "number" }, "failed": { "type": "number" } } }
+          }
+        }
+      }
+    }
+  }
+}

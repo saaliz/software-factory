@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "factory/progress@1",
+  "title": "Progress: musts by module, burn-up, cuts, and cost, time and quality per cut",
+  "description": "Written by the project's own script, usually to tmp/ci/progress.json. Extra fields are allowed and ignored.",
+  "type": "object",
+  "required": ["at", "musts"],
+  "properties": {
+    "schema": { "const": "factory/progress@1" },
+    "at": { "$ref": "common.v1.schema.json#/$defs/time" },
+    "main": { "type": "object", "properties": { "commit": { "$ref": "common.v1.schema.json#/$defs/commit" } } },
+    "summary": { "type": "string", "description": "One plain sentence of the headline numbers." },
+    "musts": {
+      "type": "object",
+      "required": ["modules", "total"],
+      "properties": {
+        "modules": { "type": "array", "items": { "$ref": "#/$defs/module" } },
+        "total": { "$ref": "#/$defs/module" }
+      }
+    },
+    "burnup": {
+      "type": "array",
+      "description": "Musts passed on main over time, oldest first.",
+      "items": {
+        "type": "object",
+        "required": ["date", "passed"],
+        "properties": { "date": { "$ref": "common.v1.schema.json#/$defs/time" }, "passed": { "$ref": "common.v1.schema.json#/$defs/count" }, "commit": { "type": "string" } }
+      }
+    },
+    "cuts": {
+      "type": "object",
+      "properties": {
+        "merged": { "$ref": "common.v1.schema.json#/$defs/count" },
+        "planned": { "$ref": "common.v1.schema.json#/$defs/count" },
+        "list": { "type": "array", "items": { "type": "object", "required": ["name", "step"], "properties": { "name": { "type": "string" }, "lane": { "type": "string" }, "step": { "type": "string" } } } }
+      }
+    },
+    "features": {
+      "type": "object",
+      "required": ["usable", "of"],
+      "properties": { "usable": { "$ref": "common.v1.schema.json#/$defs/count" }, "of": { "$ref": "common.v1.schema.json#/$defs/count" } }
+    },
+    "optimization": { "type": "array", "description": "One entry per cut, in build order. Lower is better on every measure.", "items": { "$ref": "#/$defs/cutMeasures" } }
+  },
+  "$defs": {
+    "module": {
+      "type": "object",
+      "description": "Musts of one module, or the total. passed + held + deferred + failed + built + notBuilt = musts.",
+      "required": ["name", "musts", "passed", "deferred", "failed", "built", "notBuilt", "percent"],
+      "properties": {
+        "id": { "type": "string" },
+        "slug": { "type": "string" },
+        "name": { "type": "string" },
+        "musts": { "$ref": "common.v1.schema.json#/$defs/count" },
+        "passed": { "$ref": "common.v1.schema.json#/$defs/count" },
+        "held": { "$ref": "common.v1.schema.json#/$defs/count", "description": "Optional: results held back from counting." },
+        "deferred": { "$ref": "common.v1.schema.json#/$defs/count" },
+        "failed": { "$ref": "common.v1.schema.json#/$defs/count" },
+        "built": { "$ref": "common.v1.schema.json#/$defs/count", "description": "Built, with no test result yet." },
+        "notBuilt": { "$ref": "common.v1.schema.json#/$defs/count" },
+        "percent": { "type": "number", "minimum": 0, "maximum": 100, "description": "passed / musts x 100." },
+        "stale": { "type": "boolean", "description": "True when the passing results ran on an older commit than main." }
+      }
+    },
+    "cutMeasures": {
+      "type": "object",
+      "required": ["cut"],
+      "properties": {
+        "cut": { "type": "string" },
+        "lane": { "type": "string" },
+        "step": { "type": "string" },
+        "cost": {
+          "type": "object",
+          "properties": {
+            "tokens": { "$ref": "common.v1.schema.json#/$defs/maybeCount" },
+            "mustsInCut": { "$ref": "common.v1.schema.json#/$defs/maybeCount" },
+            "mustsPassed": { "$ref": "common.v1.schema.json#/$defs/maybeCount" },
+            "tokensPerMustPassed": { "$ref": "common.v1.schema.json#/$defs/maybeCount" }
+          }
+        },
+        "time": {
+          "type": "object",
+          "properties": {
+            "sealToMergeDays": { "$ref": "common.v1.schema.json#/$defs/maybeCount" },
+            "readings": { "$ref": "common.v1.schema.json#/$defs/maybeCount", "description": "Reading (review) rounds." }
+          }
+        },
+        "quality": {
+          "type": "object",
+          "properties": {
+            "reseals": { "$ref": "common.v1.schema.json#/$defs/maybeCount" },
+            "withdrawnRulings": { "$ref": "common.v1.schema.json#/$defs/maybeCount" },
+            "redsOnMainAfterMerge": { "$ref": "common.v1.schema.json#/$defs/maybeCount", "description": "Reds that escaped to main." },
+            "regressionsFound": { "$ref": "common.v1.schema.json#/$defs/maybeCount" }
+          }
+        }
+      }
+    }
+  }
+}

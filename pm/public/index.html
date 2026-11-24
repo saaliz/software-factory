@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Factory board</title>
+<link rel="stylesheet" href="/style.css">
+<script src="/app.js" defer></script>
+</head>
+<body>
+<header class="top">
+  <div class="title">
+    <select id="project" aria-label="Project"></select>
+    <span id="health" class="health"></span>
+  </div>
+  <div id="stamp" class="stamp">Reading…</div>
+  <nav id="tabs" class="tabs" aria-label="Screens">
+    <a href="#board" data-tab="board">Board</a>
+    <a href="#pulse" data-tab="pulse">Pulse <span class="badge" id="alarm-count"></span></a>
+    <a href="#progress" data-tab="progress">Progress</a>
+    <a href="#trends" data-tab="trends">Trends</a>
+    <a href="#decisions" data-tab="decisions">Decisions <span class="badge" id="decision-count"></span></a>
+  </nav>
+</header>
+<main id="view" aria-live="polite"></main>
+<footer id="files" class="files"></footer>
+</body>
+</html>

@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "factory/lanes@1",
+  "title": "Lanes: the swimlane board",
+  "description": "Every cut as a card in its lane, at its step. Usually tmp/ci/lanes.json.",
+  "type": "object",
+  "required": ["at", "steps", "lanes"],
+  "properties": {
+    "schema": { "const": "factory/lanes@1" },
+    "at": { "$ref": "common.v1.schema.json#/$defs/time" },
+    "steps": {
+      "type": "array",
+      "description": "The board's columns, left to right.",
+      "items": { "type": "object", "required": ["key", "label"], "properties": { "key": { "type": "string" }, "label": { "type": "string" } } }
+    },
+    "mainRed": { "type": "boolean" },
+    "walksMain": { "$ref": "common.v1.schema.json#/$defs/walksMain" },
+    "lanes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["lane", "cards"],
+        "properties": { "lane": { "type": "string" }, "cards": { "type": "array", "items": { "$ref": "#/$defs/card" } } }
+      }
+    },
+    "side": {
+      "type": "array",
+      "description": "Branches that belong to no card.",
+      "items": { "type": "object", "required": ["branch"], "properties": { "branch": { "type": "string" }, "tip": { "type": "string" }, "at": { "$ref": "common.v1.schema.json#/$defs/time" } } }
+    }
+  },
+  "$defs": {
+    "card": {
+      "type": "object",
+      "required": ["cut", "step"],
+      "properties": {
+        "cut": { "type": "string" },
+        "title": { "type": "string" },
+        "step": { "type": "string", "description": "One of steps[].key." },
+        "stepLabel": { "type": "string" },
+        "modules": { "$ref": "common.v1.schema.json#/$defs/stringList" },
+        "readings": { "$ref": "common.v1.schema.json#/$defs/count" },
+        "lastCommit": { "type": ["object", "null"], "properties": { "hash": { "type": "string" }, "at": { "$ref": "common.v1.schema.json#/$defs/time" }, "ref": { "type": "string" } } },
+        "since": { "$ref": "common.v1.schema.json#/$defs/time" },
+        "workingHoursInStep": { "$ref": "common.v1.schema.json#/$defs/count" },
+        "waitsOn": { "$ref": "common.v1.schema.json#/$defs/stringList" },
+        "red": { "type": "boolean" }
+      }
+    }
+  }
+}

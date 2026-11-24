@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "factory/common@1",
+  "title": "Shapes the status documents share",
+  "$defs": {
+    "time": { "type": "string", "format": "date-time", "description": "An ISO 8601 date and time, with its offset." },
+    "commit": { "type": "string", "description": "A Git commit, full or short." },
+    "count": { "type": "number", "minimum": 0 },
+    "maybeCount": { "type": ["number", "null"], "minimum": 0, "description": "null means not measured, never zero." },
+    "walksMain": {
+      "type": ["object", "null"],
+      "description": "The last walks run on the main branch.",
+      "required": ["commit", "passed"],
+      "properties": { "commit": { "$ref": "#/$defs/commit" }, "passed": { "type": "boolean" }, "at": { "$ref": "#/$defs/time" } }
+    },
+    "stringList": { "type": "array", "items": { "type": "string" } }
+  }
+}

@@ -74,6 +74,10 @@ Tokens spent are calls multiplied by context, so nearly all spend is re-reading.
 node factory/tools/tokens.mjs --by session
 ```
 
+## Status without a model
+
+A project's scripts write its status as JSON against `core/schemas/` (progress, lanes, pulse, walks, decisions; version 1), and `pm/` shows it: the swimlane board, the pulse with its alarms, progress by module with a burn-up, trends per cut and the decisions waiting on the owner. It is a small read-only Node app run with `docker compose -f pm/compose.yaml up -d --build`, on port 5190; see `pm/README.md`. New on 24 November 2026; its first project is the second project's School ERP.
+
 ## Other authors' skills
 
 The kit copies none. `core/methods/README.md` maps each job to one skill from Addy Osmani's agent-skills and from gstack, and says which to leave off. Eight of the kit's methods are adapted from Matt Pocock's skills; see `THIRD-PARTY.md`.
@@ -119,7 +123,7 @@ That is 71,735 new plus output tokens per criterion, 6.6 million tokens sent aga
 ## Tests
 
 ```bash
-node --test "light/tools/*.test.mjs" "harness/plugin/hooks/*.test.mjs" "harness/plugin/scripts/*.test.mjs" init.test.mjs
+node --test "light/tools/*.test.mjs" "harness/plugin/hooks/*.test.mjs" "harness/plugin/scripts/*.test.mjs" "core/schemas/*.test.mjs" "pm/*.test.mjs" init.test.mjs
 ```
 
 ## Licence
