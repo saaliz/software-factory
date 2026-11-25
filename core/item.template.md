@@ -1,11 +1,28 @@
 # <The work item in words a user would say>
 
-<!-- One work item is something a person can see or do when it is released, small enough for one build session. -->
+<!-- One work item delivers one or more journey steps end to end, small enough for one fresh build session and one review. -->
 <!-- Copy this file to work/NN-words/item.md. The gate ignores comment lines like these; delete them as you fill each part. -->
+<!-- factory/methods/objectives-and-criteria.md says how to fill Objective, Criteria and Counterfactuals; `node factory/tools/criteria.mjs work/NN-words` checks them. -->
+
+## Objective
+
+<!-- One sentence: who does what, and the result they see. -->
+
+## Journey steps
+
+<!-- One line each, starting "- ", naming the journey steps this item proves, for example "- J-05.2". factory/methods/user-journeys.md. -->
+
+## Not in scope
+
+<!-- One line each, starting "- ": what a reader might expect here that this item leaves out. -->
 
 ## Criteria
 
-<!-- One line each, starting "- ", copied word for word from the requirements. At most 15; more means two work items. -->
+<!-- One line each, starting "- ": "Given <starting state>, when <action>, then <observable result>." Copied word for word from the requirements where they state it. At most 15; more means two work items. The first is C1. -->
+
+## Counterfactuals
+
+<!-- One line per criterion, starting "- C<n>: ": what must not happen, or the broken copy that turns its test red. -->
 
 ## Answers
 

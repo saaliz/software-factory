@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "factory/pulse@1",
+  "title": "Pulse: what moves now, and the alarms",
+  "description": "The cuts in progress, what runs, who holds each environment, and the alarms. Usually tmp/ci/pulse.json.",
+  "type": "object",
+  "required": ["at", "cuts", "alarms"],
+  "properties": {
+    "schema": { "const": "factory/pulse@1" },
+    "at": { "$ref": "common.v1.schema.json#/$defs/time" },
+    "mainRed": { "type": "boolean" },
+    "walksMain": { "$ref": "common.v1.schema.json#/$defs/walksMain" },
+    "alarms": { "$ref": "common.v1.schema.json#/$defs/stringList", "description": "One plain sentence per alarm; empty when none." },
+    "cuts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "step"],
+        "properties": {
+          "name": { "type": "string", "description": "The cut. lanes and progress call this field cut." },
+          "lane": { "type": "string" },
+          "step": { "type": "string" },
+          "stepLabel": { "type": "string" },
+          "ref": { "type": "string" },
+          "tip": { "type": "string" },
+          "tipAt": { "$ref": "common.v1.schema.json#/$defs/time" },
+          "waitsOn": { "$ref": "common.v1.schema.json#/$defs/stringList" },
+          "stuck": { "type": "boolean" },
+          "workingHoursInStep": { "$ref": "common.v1.schema.json#/$defs/count" },
+          "sealed": {
+            "type": ["object", "null"],
+            "properties": { "commit": { "type": "string" }, "at": { "$ref": "common.v1.schema.json#/$defs/time" }, "passed": { "$ref": "common.v1.schema.json#/$defs/count" }, "total": { "$ref": "common.v1.schema.json#/$defs/count" } }
+          }
+        }
+      }
+    },
+    "envs": {
+      "type": "object",
+      "description": "Environment name to its holder, or null when free.",
+      "additionalProperties": { "type": ["object", "null"], "properties": { "pid": { "type": "number" }, "since": { "$ref": "common.v1.schema.json#/$defs/time" } } }
+    },
+    "running": {
+      "type": "array",
+      "items": { "type": "object", "required": ["what"], "properties": { "kind": { "type": "string" }, "pid": { "type": "number" }, "started": { "$ref": "common.v1.schema.json#/$defs/time" }, "what": { "type": "string" } } }
+    }
+  }
+}

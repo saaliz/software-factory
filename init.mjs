@@ -59,6 +59,8 @@ export function plan({ profile = 'light', marketplace } = {}) {
     ['AGENTS.md', { from: 'core/AGENTS.template.md' }],
     ['CLAUDE.md', { from: 'core/CLAUDE.template.md' }],
     ['factory/build-order', { text: 'layered\n' }],
+    ['factory/journeys.json', { text: '{\n  "requiredDenials": [],\n  "known": {},\n  "release": []\n}\n' }],
+    ['factory/branches.json', { text: '{}\n' }],
     ['factory/brief.md', { from: 'core/brief.template.md' }],
     ['factory/item.md', { from: 'core/item.template.md' }],
     ['factory/token-economy.md', { from: 'core/token-economy.md' }],

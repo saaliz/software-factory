@@ -10,13 +10,17 @@ It comes from one real build (a 20-module system, 17 days, 34,700 model calls) a
 |---|---|---|
 | Who drives | One person, one session at a time | A super orchestrator over lane orchestrators; workers are subagents |
 | Where the process lives | Six skills that load only when called | A Claude Code plugin (six agents, three skills, five hooks), the super's rules, a brief per step, records |
-| Scripts | The gate, the seal, the token counter, and a way to ask another maker's model | Those, plus machine slots for CI and heavy jobs, a runner for test suites side by side, a heartbeat judged by merges that nudges idle lanes, a throughput measure, a measure of who waited on whom, a sources check, the merge check, the super's merge and a lane's merge of the main branch, one package's sealed tests, a sweep before review, a lessons file, and the interfaces of a scaffold and contract tests |
+| Scripts | The gate, the seal, the token counter, a way to ask another maker's model, the criteria check, the journey check with its walkthrough and trace matrix, the orphan-branch report, and the owner-quote check | Those, plus machine slots for CI and heavy jobs, a runner for test suites side by side, a heartbeat judged by merges that nudges idle lanes, a throughput measure, a measure of who waited on whom, a sources check, the merge check, the super's merge and a lane's merge of the main branch, one package's sealed tests, a sweep before review, a lessons file, and the interfaces of a scaffold and contract tests |
 | Fits | One app or one module, a solo builder, starting today | Many modules, long unattended runs, two vendors, a team |
 | In this repository | **Yes: `light/`, installable now** | **Yes: `harness/`, installable now** with `--profile harness`; built, mostly not yet run outside its first project |
 
 The core both share: one short entry file, the form of a brief, a build order the gate enforces (by default layered: contracts, database, seams, logic, then tests sealed by a session that did not build; or tests sealed before the build), the token counter, a handful of methods, and the council.
 
-**Layered is new and not yet proven by a finished build.** It was adopted on 23 November 2026 in its first project to bring every layer's gaps forward; `core/methods/layered-build.md` holds it.
+**Layered is new and not yet proven by a finished build.** It was adopted on 23 November 2026 in its first project to bring every layer's gaps forward; `core/methods/layered-build.md` holds it. Since 24 November its wave is one thick work item by default, so each item is shown working at the end of its own wave.
+
+**One line to the rollout (new, 24 November 2026).** Every work item opens with one objective sentence and criteria a user can observe, each with a counterfactual (`criteria.mjs` checks the form). It names the journey steps it proves, and one journey file per journey drives the end-to-end test, the walkthrough the owner signs and the trace matrix (`journeys.mjs`). A defect found late goes back to the step that made it. Every branch is registered and ends (`orphans.mjs`). The methods are `objectives-and-criteria.md`, `user-journeys.md`, `factory-line.md` and `branch-lifecycle.md`. They come from the second project's eight whole-plan audits, two full rewrites and 68 unmerged branches in six weeks.
+
+**Focused review rounds (new, 24 November 2026).** One set of work items on the second project took thirteen review rounds, most of them because each brief sent the reviewer into ground no earlier round had read. Now scripts run first, the one full review comes at the end with its scope fixed in the brief, every later round reads only the delta and answers fixed or not fixed per finding, and every brief states what counts as must-fix (`core/methods/review.md`, Rounds). A page that quotes the owner cites the decision file, and `quotes.mjs` holds the words to it.
 
 ## Start
 
@@ -70,6 +74,10 @@ Tokens spent are calls multiplied by context, so nearly all spend is re-reading.
 node factory/tools/tokens.mjs --by session
 ```
 
+## Status without a model
+
+A project's scripts write its status as JSON against `core/schemas/` (progress, lanes, pulse, walks, decisions; version 1), and `pm/` shows it: the swimlane board, the pulse with its alarms, progress by module with a burn-up, trends per cut and the decisions waiting on the owner. It is a small read-only Node app run with `docker compose -f pm/compose.yaml up -d --build`, on port 5190; see `pm/README.md`. New on 24 November 2026; its first project is the second project's School ERP.
+
 ## Other authors' skills
 
 The kit copies none. `core/methods/README.md` maps each job to one skill from Addy Osmani's agent-skills and from gstack, and says which to leave off. Eight of the kit's methods are adapted from Matt Pocock's skills; see `THIRD-PARTY.md`.
@@ -83,6 +91,8 @@ The kit copies none. `core/methods/README.md` maps each job to one skill from Ad
 | One step per fresh session | Measured: a median of 146,000 tokens a call, against 372,000 for one long session |
 | Panels and councils voiced by one session | 16 sittings on the first project |
 | The light profile as a whole | Run end to end once, on a small trial work item (below). **Not yet run on a real project** |
+| Objectives and criteria check, journeys (check, walkthrough, trace), orphan-branch report | Built and tested on synthetic projects and Git repositories here, 24 November 2026. **Not yet run on a real project**; the second project's pilot is one milestone with one journey |
+| A wave of one thick work item, a defect sent back to the step that made it, measures of output, economy and time | Decided by the second project's owner, 24 November 2026, after a council; **not yet run** |
 | Affected repair planner and Node exact-file runner | Built and tested on synthetic Git repositories here; not yet run on a real project. No inferred call graph, other-stack adapter or full/E2E proof |
 | The harness's rules, lane brief and step briefs, slots, heartbeat by merges, throughput and sources scripts | Running on one project since 14 November 2026; a few parts measured once (`harness/README.md`). Before the lanes: ten packages of about 25 criteria merged in about 12 hours with Claude alone |
 | Rerunning every merged package's sealed tests on the main branch | Being built on the first project; documented only |
@@ -115,7 +125,7 @@ That is 71,735 new plus output tokens per criterion, 6.6 million tokens sent aga
 ## Tests
 
 ```bash
-node --test "light/tools/*.test.mjs" "harness/plugin/hooks/*.test.mjs" "harness/plugin/scripts/*.test.mjs" init.test.mjs
+node --test "light/tools/*.test.mjs" "harness/plugin/hooks/*.test.mjs" "harness/plugin/scripts/*.test.mjs" "core/schemas/*.test.mjs" "pm/*.test.mjs" init.test.mjs
 ```
 
 ## Licence

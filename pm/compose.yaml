@@ -1,0 +1,21 @@
+# Only this app. Start:  docker compose -f pm/compose.yaml up -d --build   (or from pm/: docker compose up -d --build)
+# Each project folder is mounted read only at the "mount" its entry in projects.json names.
+# Reach it from a phone on the same network: set PM_BIND=0.0.0.0 before starting (the default is this machine only).
+name: factory-pm
+services:
+  pm:
+    build:
+      context: ..
+      dockerfile: pm/Dockerfile
+    image: factory-pm:1
+    container_name: factory-pm
+    ports:
+      - "${PM_BIND:-127.0.0.1}:${PM_PORT:-5190}:5190"
+    volumes:
+      - ./projects.json:/app/pm/projects.json:ro
+      - ${SCHOOL_ERP_DIR:-D:/Documents/Projects/school-lms}:/projects/school-erp:ro
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 256m
+    restart: unless-stopped

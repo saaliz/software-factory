@@ -6,12 +6,16 @@ Each file is one method a skill or a brief names by path. The method holds the s
 |---|---|
 | `every-step.md` | every step skill |
 | `writing-for-agents.md` | anyone writing a brief, a skill or `AGENTS.md` |
-| `layered-build.md` | the default order for every coding session: contracts, database, seams, logic, then sealed tests; layer checks, gap pre-flight and requirement audits |
+| `layered-build.md` | the default order for every coding session: contracts, database, seams, logic, then sealed tests, inside one thick work item by default; layer checks, gap pre-flight and requirement audits |
+| `objectives-and-criteria.md` | whoever writes a milestone, a work item or a requirement, and every review: one objective sentence, criteria a user can observe, each with its counterfactual (`criteria.mjs`) |
+| `user-journeys.md` | requirements writers, test writers and whoever signs a release: one journey file drives the end-to-end test, the walkthrough and the trace matrix (`journeys.mjs`) |
+| `factory-line.md` | the orchestrator, and any session that finds a defect made earlier: the stations, a defect goes back to where it was made, when to call the council, and the measures of output, economy and time |
+| `branch-lifecycle.md` | whoever cuts or merges a branch: the ledger, the three ends, and removing a worktree safely (`orphans.mjs`) |
 | `test-first.md` | sealed-test writers (rules 5 to 13) and builders (all) |
 | `proof-table.md` | whoever proves a piece of work, before the first test; the builder and the reviewer after: one row a claim, its level (always, once, none), its proof, what that catches and misses. For new behaviour, repairs, refactors, tools, data changes and records. Proposed, not yet run |
 | `affected-testing.md` | repair builders and reviewers: exact changed-behavior regressions, direct contracts and separate full checkpoints |
 | `diagnosing.md` | any session given a defect, a flaky test or something slow |
-| `review.md` | every review |
+| `review.md` | every review, and whoever writes a review brief: the two axes, then rounds (one full review at the end, the delta after it, a stated bar) |
 | `handoff.md` | every final note |
 | `retro.md` | one short session after each release |
 | `throughput.md` | one session when the rate of criteria proven stalls, or before adding a lane or a machine |

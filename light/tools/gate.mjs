@@ -4,7 +4,8 @@
 //   node factory/tools/gate.mjs work/<item> --prove                                the gate itself runs the commands the seal names and keeps the result in proof.json
 // Review and release may not start without a green proof that still fits: the same seal, and no code changed since.
 // A build note is a claim. The proof is the gate's own run, with the commit and the seal it ran on.
-// A work item is a folder holding item.md with four headings: Criteria, Seal, Review, Release.
+// A work item is a folder holding item.md with four headings: Criteria, Seal, Review, Release. An item that also has
+// "## Objective" must pass factory/tools/criteria.mjs (factory/methods/objectives-and-criteria.md) before any step.
 // The build order is factory/build-order: `layered` (build first, tests sealed after, factory/methods/layered-build.md)
 // or `tests-first` (tests sealed before the build). Without the file the order is tests-first, as before.
 import fs from 'node:fs';
@@ -12,6 +13,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { check } from './seal.mjs';
+import { criteriaProblems } from './criteria.mjs';
 
 export const HEADINGS = ['Criteria', 'Seal', 'Review', 'Release'];
 export const STEPS = ['tests', 'build', 'review', 'release'];
@@ -55,6 +57,7 @@ export function itemProblems(root, item) {
   if (list.length > maxCriteria()) problems.push(`${list.length} criteria: at most ${maxCriteria()} in one work item, cut it in two`);
   const repeated = list.filter((c, i) => list.indexOf(c) !== i);
   if (repeated.length) problems.push(`a criterion is written twice: ${repeated[0]}`);
+  problems.push(...criteriaProblems(s));
   return { problems, s };
 }
 

@@ -1,0 +1,7 @@
+# Only the viewer and the schemas go into the image (pm/Dockerfile).
+*
+!core/schemas/
+!pm/read.mjs
+!pm/server.mjs
+!pm/projects.json
+!pm/public/

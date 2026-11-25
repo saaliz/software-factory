@@ -1,0 +1,94 @@
+{
+ "schema": "factory/lanes@1",
+ "at": "2026-11-24T10:00:00Z",
+ "steps": [
+  {
+   "key": "planned",
+   "label": "Planned"
+  },
+  {
+   "key": "sealed",
+   "label": "Sealed"
+  },
+  {
+   "key": "built",
+   "label": "Built"
+  },
+  {
+   "key": "merged",
+   "label": "Merged"
+  }
+ ],
+ "mainRed": false,
+ "walksMain": {
+  "commit": "abc1234",
+  "passed": true,
+  "at": "2026-11-24T09:00:00Z"
+ },
+ "lanes": [
+  {
+   "lane": "A",
+   "cards": [
+    {
+     "cut": "01-sign-in",
+     "title": "A member signs in",
+     "step": "merged",
+     "stepLabel": "Merged",
+     "modules": [
+      "Accounts"
+     ],
+     "readings": 2,
+     "lastCommit": {
+      "hash": "abc1234",
+      "at": "2026-11-20T10:00:00Z",
+      "ref": "refs/heads/main"
+     },
+     "since": "2026-11-20T10:00:00Z",
+     "workingHoursInStep": 0,
+     "waitsOn": [],
+     "red": false
+    },
+    {
+     "cut": "02-invoice",
+     "title": "An invoice totals",
+     "step": "built",
+     "stepLabel": "Built",
+     "modules": [
+      "Billing"
+     ],
+     "readings": 1,
+     "lastCommit": {
+      "hash": "def5678",
+      "at": "2026-11-24T08:00:00Z",
+      "ref": "refs/heads/cut/02"
+     },
+     "since": "2026-11-23T08:00:00Z",
+     "workingHoursInStep": 6,
+     "waitsOn": [
+      "the owner: which tax rule applies"
+     ],
+     "red": true
+    }
+   ]
+  },
+  {
+   "lane": "B",
+   "cards": [
+    {
+     "cut": "03-refund",
+     "step": "planned",
+     "waitsOn": [
+      "the seal"
+     ]
+    }
+   ]
+  }
+ ],
+ "side": [
+  {
+   "branch": "spike/x",
+   "tip": "0123456",
+   "at": "2026-11-22T10:00:00Z"
+  }
+ ]
+}

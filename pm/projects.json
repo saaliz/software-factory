@@ -1,0 +1,11 @@
+{
+  "projects": [
+    {
+      "name": "School ERP",
+      "folder": "D:/Documents/Projects/school-lms",
+      "mount": "/projects/school-erp",
+      "dataDirs": ["tmp/ci", ".claude/worktrees/tooling-progress-62e66a/tmp/ci"],
+      "owner": ["Ammar", "the owner", "owner"]
+    }
+  ]
+}
