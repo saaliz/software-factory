@@ -44,7 +44,26 @@ One row per claim, under a `Proof` heading in the work item's file (or in the br
 7. **The tests are shown to fail.** For `always` and `once` rows, small faults are planted in the changed code only (a mutation tool for the project's stack, or by hand) and the tests run. A planted fault no test catches goes back to whoever wrote the tests, never to the builder.
 8. **The reviewer reads it first** (`review.md`): a "Never wrong" claim below `always`, a `none` row never shown, a test that names no fault it would catch, or a proof that could not fail is a must-fix finding.
 
-Check: no row is blank; every `always` row has its control; every `none` row names a check, a walk or a reader and the command that showed it red; every test in the diff names a row; the planted-fault run is in the note with what survived.
+## The prover's checklist: the gaps reviews keep finding
+
+From the School ERP trial, 22–26 November 2026: most must-fix findings in its reviews were a state that changed after a check, a role the access grid does not admit, a second path to one outcome, or a notice's words. The prover works through these before the table is confirmed, and the seal note says each was done.
+
+9. **A hold that arrives after the check.** Any action that checks a hold or a state at one step and acts at a later one (prepare then sign, notice then confirm, a draft then its placement) gets an `always` row: a hold arriving between the two steps stops the act. Its test lands the hold between the steps and shows the later step refused. Its control is the same two steps with no hold between them, which succeed.
+10. **Access-grid rows come from a script.** Where the design has an access grid (role by route), a script prints the rows for the routes the work touches:
+    - every admitted role refused outside its scope;
+    - every other role given the route's own grid answer exactly, never "403 or 404";
+    - one control.
+
+    The slice names its routes on one line, and a check refuses a seal with a route's rows missing. Where a role reaches a route only through a token, code or session, a role the grid leaves out asks with one that is not its own, and expects the row's answer. On a public route, "every other role" means no role reaches more than the control does.
+11. **Every path to one outcome.** An outcome with more than one path (end an enrolment, issue a document, tell a person) gets a row for each path, or the row names why a path needs none. The paths are read from the design, never from the code.
+12. **A hold row names both states.** A row that proves a hold quotes the state that holds and the state that releases it from the design. Its control starts from the releasing state.
+13. **A notice's words are sealed.** Any notice, alert or message the work sends a person, in words of its own, gets an `always` row. The row quotes the exact words in each language, the template key and its fields, fixed at the seal and not by the builder.
+    - The words are true in every end state the notice can be read in: sent, settled, retried, dead-lettered, or unread. A word that promises an outcome the code may not reach is refused.
+    - In a gendered language, the words address the reader neutrally where the reader's gender is not known.
+    - The test asserts the words in the language it tests. The other languages are held to the row by a check that reads the template catalogue.
+    - Work that only raises events, which another module turns into words, adds no row. It names the events in its gaps log.
+
+Check: no row is blank; every `always` row has its control; every `none` row names a check, a walk or a reader and the command that showed it red; every test in the diff names a row; the planted-fault run is in the note with what survived.; every check-then-act has its late-hold row, every touched route its grid rows, every multi-path outcome a row a path, every hold row both states, and every notice its words.
 
 ## The same table, for different work
 
