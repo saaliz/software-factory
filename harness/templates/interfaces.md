@@ -13,7 +13,7 @@ The kit's `factory/tools/gate.mjs` is the gate for a work item: criteria, seal, 
 - `<gate> work/<lane>/<package>` prints `next: <step>`; exit 1 when stopped.
 - `<gate> work/<lane>/<package> --can-start tests|build|review|release` exits 0 with `<step> may start`, or 1 with each reason.
 
-What the first project added, worth adding where it fits: every criterion resolves to a requirement in the product source; a package holds 20 to 40 criteria; the seal names the tests' own command; release only from the package's branch, never the main branch.
+What the first project added, worth adding where it fits: every criterion resolves to a requirement in the product source; a package holds 20 to 40 criteria, or 15 to 40 with a `Floor exception:` line naming the super's ruling on rights or safety ground; the seal names the tests' own command; release only from the package's branch, never the main branch.
 
 ## The scaffold: a module's skeleton from its design
 
@@ -23,7 +23,9 @@ What the first project added, worth adding where it fits: every criterion resolv
 2. **It writes,** into one generated folder per module, called by nothing until a builder calls it: each interface the module gives that no hand-written code declares; each one it takes whose owner has not written it; every designed endpoint not mapped by hand answering "not built"; a record and a draft table per table not built; every designed call between modules, listed in one place a check reads; and a `SCAFFOLD.md` of what it wrote, what it left to the hand and what it could not read.
 3. **Stand-ins, in tests only:** one per interface taken from an owner not built, answering the closed set's denial, an empty list or the least value; and one contract per such interface, "an unknown subject is answered, and denied", that the stand-in passes and the owner's real code will pass too. A release check proves no stand-in reaches a build.
 4. **Rules:** every generated file carries a marker in its first line, and a file without one is never overwritten; a rerun is idempotent and depends on no clock or machine; when the owner builds a piece by hand, its generated copy goes.
-5. **Sources and projects:** every generated piece carries its `Source:` line (the design part and the requirements it comes from), which the builder keeps and corrects; and a module whose code project does not exist yet gets it created, so the first build starts from a module that compiles.
+5. **Seam types:** the scalar types a seam may carry include a 64-bit integer (`integer64`) for any identifier wider than 32 bits (an identifier from an outside register, a 14-digit number), with a 64-bit default; the contract tests accept it. On the first project a 14-digit identifier typed as a 32-bit integer overflowed (`factory/harness/lessons.md`, 8).
+6. **Time:** a seam carries instants, dates and times of day in UTC only. A project check refuses a server-side conversion to or from a local zone; the client renders local time and turns a time a person picks into UTC before sending it (`factory/harness/lessons.md`, 9).
+7. **Sources and projects:** every generated piece carries its `Source:` line (the design part and the requirements it comes from), which the builder keeps and corrects; and a module whose code project does not exist yet gets it created, so the first build starts from a module that compiles.
 
 ## The sources step
 
@@ -42,6 +44,10 @@ One CI step, after the unit and sealed tests.
 3. **Events:** every event a built consumer takes, as the providers really emitted it during the run, carries each field the consumer marks required, of its type.
 4. **The integration run:** the cross-module flows through real modules, no stand-ins; then one walk per surface asking every read endpoint the host maps. A server error is red; "not built" is counted.
 5. **Mismatches** go in a table in the step's own README, each skipped with its reason, so CI stays green and the mismatch visible; a row whose mismatch no longer occurs turns red, so the table cannot go stale. The super sends each to the module that must change.
+
+## The merge check
+
+`node factory/tools/merge-check.mjs [work/<lane>/<package>] [--build-first] [--stop]`, through a slot, is what every branch passes before the super merges it. Its steps are `mergeCheck.steps` in `factory/harness.json`, each `{ name, command, containers? }`, in order: the quick checks (a secrets scan, `sources.mjs`, the seal), the build, the build of the sealed tests' project when it sits outside the build, the architecture checks, and the contract tests and integration run (`containers: true`). It adds the web check when the branch changes `mergeCheck.web.path` (installing its packages when `web.installed` is missing) and every module's scaffold check over `mergeCheck.modules`. `--build-first` leaves out the steps marked `containers` and the web tests. Every step runs to the end. Its record (`merge-check.json`, naming the tip) and the five-line request (`merge-request.txt`) go in the worktree's own git folder, so they are never committed and never make the tree dirty; `merge.mjs` reads the record.
 
 ## The CI command, in its slots
 

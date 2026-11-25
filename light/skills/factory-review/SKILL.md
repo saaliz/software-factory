@@ -5,11 +5,11 @@ description: Review step of a work item. A fresh session that did not build it r
 
 # Review
 
-Follow `factory/methods/every-step.md` and `factory/methods/review.md`. Model: the high tier, and another vendor's model where one is at hand. Never the session that built it.
+Follow `factory/methods/every-step.md`, `factory/methods/review.md` and `factory/methods/proof-table.md`, rules 6 to 8. Model: the high tier, and another vendor's model where one is at hand. Never the session that built it.
 
 ## Start
 
-`node factory/tools/gate.mjs work/NN-words --can-start review` must print `review may start`. The plain gate goes on printing `next: build` until a review writes `clear`; this command is the check.
+`node factory/tools/gate.mjs work/NN-words --can-start review` must print `review may start`. It refuses without the gate's own green run (`proof.json`) on the same seal and the same code; if it refuses, stop and say what it printed. The plain gate goes on printing `next: build` until a review writes `clear`; this command is the check.
 
 ## Read, and nothing more
 
@@ -19,6 +19,8 @@ Follow `factory/methods/every-step.md` and `factory/methods/review.md`. Model: t
 
 ## Do
 
+- First the table under `## Proof` in `item.md`: a "Never wrong" criterion below `always`, a blank row, a test that names no fault it would catch, or a proof that could not fail is a must-fix finding. So is a change the build made to anything that judges the work, unless its note gives a reason you accept.
+- Show the proofs can fail. For each `none` row: break the claim, run the check the row names, see it red, put the code back, write the command beside the row. Then plant small faults in the changed code only (the project's tool; with none, by hand, one for each `always` row) and run the sealed tests. A check that stays green, or a planted fault no test catches, is a must-fix finding for whoever wrote the tests, not for the builder. Leave the tree as you found it.
 - The two readings of `review.md`: standards, then spec.
 - Where `item.md` has `## Objective`, the spec reading judges the work against that objective and its criteria, and nothing else (`factory/methods/objectives-and-criteria.md`). A defect made at an earlier step (a criterion that cannot fail, a contract missing an operation) is named with the step that made it, so it is fixed there (`factory/methods/factory-line.md`).
 - Look hardest at permissions, personal data, migrations and anything that cannot be undone.
@@ -33,7 +35,7 @@ Check each earlier must-fix finding against the commits made since that review, 
 ## Done means
 
 - The first line under `## Review` in `item.md` is `clear`, or `not clear:` and the worst finding with its file and line. The findings follow, each "must fix before release" or "can follow".
-- Anything but `clear` sends the work item back to the build, or to the owner: say which.
+- Anything but `clear` sends the work item back to the build, to whoever wrote the tests, or to the owner: say which.
 
 ## Commit
 

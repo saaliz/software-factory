@@ -11,7 +11,8 @@ Each file is one method a skill or a brief names by path. The method holds the s
 | `user-journeys.md` | requirements writers, test writers and whoever signs a release: one journey file drives the end-to-end test, the walkthrough and the trace matrix (`journeys.mjs`) |
 | `factory-line.md` | the orchestrator, and any session that finds a defect made earlier: the stations, a defect goes back to where it was made, when to call the council, and the measures of output, economy and time |
 | `branch-lifecycle.md` | whoever cuts or merges a branch: the ledger, the three ends, and removing a worktree safely (`orphans.mjs`) |
-| `test-first.md` | sealed-test writers (rules 5 to 14) and builders (all) |
+| `test-first.md` | sealed-test writers (rules 5 to 13) and builders (all) |
+| `proof-table.md` | whoever proves a piece of work, before the first test; the builder and the reviewer after: one row a claim, its level (always, once, none), its proof, what that catches and misses. For new behaviour, repairs, refactors, tools, data changes and records. Proposed, not yet run |
 | `affected-testing.md` | repair builders and reviewers: exact changed-behavior regressions, direct contracts and separate full checkpoints |
 | `diagnosing.md` | any session given a defect, a flaky test or something slow |
 | `review.md` | every review, and whoever writes a review brief: the two axes, then rounds (one full review at the end, the delta after it, a stated bar) |
@@ -23,6 +24,7 @@ Each file is one method a skill or a brief names by path. The method holds the s
 | `vendor-lane.md` | the orchestrator and a lane driver: a second vendor builds a whole module in its own lane while Claude seals, tests and merges: clone per cut, judging-file check, launcher, measures, Windows notes |
 | `shared-test-database.md` | a tooling session, with several lanes: one test database at the main schema, one seed, a tenant per test (in trial, not yet measured) |
 | `machine-capacity.md` | the orchestrator, before adding a lane or when the machine is slow: heavy-job slots, a cap per lane, a free-RAM floor for lane jobs only |
+| `thick-cut.md` | the orchestrator and every brief of a cut, when criteria merge and nothing new can be done by a person: interfaces and skeletons once, the interface freeze and the screens once a milestone, then six steps a cut, back end proven before front end. Proposed, not yet run |
 | `deep-modules.md` | anyone designing or judging an interface |
 | `questionnaire.md` | questions for the owner or a human expert |
 
@@ -48,4 +50,4 @@ The pairings are by each skill's own description; try a pairing on one work item
 
 ## Credits
 
-`writing-for-agents`, `test-first`, `diagnosing`, `review`, `handoff`, `retro`, `deep-modules` and `questionnaire` are adapted in this kit's own words from Matt Pocock's skills (`github.com/mattpocock/skills`), MIT licence, copyright (c) 2026 Matt Pocock. The licence's permission notice applies to the adapted parts; see `THIRD-PARTY.md` at the kit's root.
+`writing-for-agents`, `test-first`, `diagnosing`, `review`, `handoff`, `retro`, `deep-modules` and `questionnaire` are adapted in this kit's own words from Matt Pocock's skills (`github.com/mattpocock/skills`), MIT licence, copyright (c) 2026 Matt Pocock; so is one idea in `proof-table` (agreeing where the tests go before writing them, with what each catches and misses, from his `tdd` skill). The licence's permission notice applies to the adapted parts; see `THIRD-PARTY.md` at the kit's root.
