@@ -3,7 +3,8 @@
 //   node init.mjs <project folder> --dry-run  print what it would write
 //   node init.mjs <project folder> --profile harness [--marketplace <owner/repo>]
 //       the light profile plus the harness: factory/harness.json, factory/harness/ (the super's rules, the lane brief and
-//       handover, the step briefs), the slot, side-by-side, heartbeat and claim scripts, factory/records/, and .claude/settings.json
+//       handover, the step briefs, the lessons), the slot, side-by-side, heartbeat, claim, merge-check, merge, merge-main,
+//       package-tests and sweep scripts, factory/records/, and .claude/settings.json
 //       naming the factory-harness plugin (only if absent; otherwise it prints what to add)
 // What it writes: AGENTS.md and CLAUDE.md (if absent), factory/ (methods, tools, forms, council seats, decisions),
 // .claude/skills/ (the council and the five step skills), and work/ with a .gitignore for each item's tmp folder.

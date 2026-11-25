@@ -9,11 +9,11 @@ Rules 1 to 4 are for builders; rules 5 to 13 for everyone who writes a test.
 5. **Expected values come from outside the code:** a literal from the criterion, a worked example in the requirements. Never recompute the answer with the code's own logic.
 6. **Test through the public interface:** the API, the screen, the event. A test reaches no private method and no table another part owns.
 7. **Fake only what is outside the part under test.** A collaborator inside it is used for real.
-8. **Each criterion proved once, at the lowest level that can prove it.** A second test only where a test could pass with nothing happening: refusals and permissions, privacy, safety, money, something that must not be sent. A refusal has a control beside it: the same request with one input changed, which succeeds. Without it the refusal may be passing for another reason; on the second project one refused a made-up account, which the code refuses whatever the rule.
+8. **Each criterion proved once, at the lowest level that can prove it.** A second test only where a test could pass with nothing happening: refusals and permissions, privacy, safety, money, something that must not be sent. A refusal has a control beside it: the same request with one input changed, which succeeds. Without it the refusal may be passing for another reason; on the second project one refused a made-up account, which the code refuses whatever the rule. The control changes exactly one input, the one the rule turns on: on the first project, 23 November 2026, a control that changed a person's role and her scope together would have passed a product that refused everyone in that role.
 9. **A time budget.** A test over 3 seconds carries one comment line saying why. On the first project, 31 tests over 10 seconds took 58% of all test time.
 10. **Heavy setup once.** Setup over 5 seconds lives in a fixture shared by the tests that only read it; a test that writes gets its own data.
 11. **The smallest data that proves the criterion.**
 12. **Nothing changed on shared test state is left changed:** the clock, switches and fakes are put back.
 13. **A flaky test is set aside the same day** and diagnosed by `diagnosing.md`; it is never retried until green.
 
-Check: every criterion has one sealed test that names it, and a second only under rule 8; every test has been seen to fail.
+Check: every criterion has the proof its row in the proof table names (`proof-table.md`): one sealed test that names it for a `once` row, a second only under rule 8, none for a `none` row; every test has been seen to fail.

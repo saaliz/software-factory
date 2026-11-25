@@ -8,9 +8,9 @@ For many modules, long unattended runs, two vendors and a team. One **super orch
 node init.mjs path/to/your/project --profile harness
 ```
 
-It never overwrites a file. Beyond the light profile it writes `factory/harness.json`, `factory/harness/` (the super's rules, the lane brief and handover, the records' forms, the step briefs, the heartbeat), `factory/tools/slots.mjs`, `side-by-side.mjs`, `heartbeat.mjs`, `throughput.mjs`, `sources.mjs` and `claim-super.mjs`, `factory/records/`, and `.claude/settings.json` naming this kit as a marketplace with the plugin on. Add `--marketplace <owner>/<repo>` to name a GitHub copy of the kit instead of this folder. Then:
+It never overwrites a file. Beyond the light profile it writes `factory/harness.json`, `factory/harness/` (the super's rules, the lane brief and handover, the records' forms, the step briefs, the heartbeat, the lessons), `factory/tools/slots.mjs`, `side-by-side.mjs`, `heartbeat.mjs`, `throughput.mjs`, `waits.mjs`, `sources.mjs`, `claim-super.mjs`, the merge tools (`merge-check.mjs`, `merge.mjs`, `merge-main.mjs`), the package tools (`package-tests.mjs`, `sweep.mjs`) and `config.mjs`, which they share, `factory/records/`, and `.claude/settings.json` naming this kit as a marketplace with the plugin on. Add `--marketplace <owner>/<repo>` to name a GitHub copy of the kit instead of this folder. Then:
 
-1. Fill in every `<…>` in `factory/harness.json`: the four sources (product, design, architecture, decisions and principles), the commands, the CI pattern, the vendors, any forbidden paths.
+1. Fill in every `<…>` in `factory/harness.json`: the four sources (product, design, architecture, decisions and principles), the commands, the CI pattern, the merge check's steps, the label words that name each lane, the generated paths, the sweep's patterns, the vendors, any forbidden paths. A value left as its `<…>` counts as not set: its step is skipped, never run.
 2. In Claude Code, trust the folder, run `/plugin` and install `factory-harness` from the `software-factory` marketplace (or `claude plugin marketplace add <this kit>` and `claude plugin install factory-harness@software-factory`).
 3. Start the super: `/factory-harness:factory-super`, or `claude --agent factory-harness:factory-super`.
 4. Set a durable heartbeat: `factory/harness/heartbeat.md`.
@@ -25,8 +25,21 @@ The gate, the scaffold and the contract tests depend on the stack: the kit ships
 | `plugin/agents/` | super, lane, test writer, builder, fresh reviewer, panel; each a few lines pointing to its brief |
 | `plugin/skills/` | `factory-super` (start or take over), `factory-lane` (start a lane), `factory-heartbeat` (one beat); each loads only when called |
 | `plugin/hooks/` | `guard.mjs`, five guards behind switches, and its tests |
-| `plugin/scripts/` | the slot script, the runner for test suites side by side, the heartbeat, the throughput measure, the measure of who waited on whom, the sources check, the super's claim, and their tests; installed into `factory/tools/` |
-| `templates/` | `harness.json`, the super's rules, the lane brief and handover, the records, the heartbeat, the interfaces, and six step briefs |
+| `plugin/scripts/` | the slot script, the runner for test suites side by side, the heartbeat, the throughput measure, the measure of who waited on whom, the sources check, the super's claim, the merge check, the super's merge, a lane's merge of the main branch, one package's sealed tests, the sweep, and their tests; installed into `factory/tools/` |
+| `templates/` | `harness.json`, the super's rules, the lane brief and handover, the records, the heartbeat, the interfaces, the lessons (each failure seen and the fix that stopped it), and six step briefs |
+
+## The merge tools and the package tools
+
+| Command | Who | What it holds |
+|---|---|---|
+| `slots.mjs heavy|ci --label <module>-<package>-<step> -- <command>` | every heavy job | first come, first served by ticket; a lane holds at most `slots.laneHeavy` heavy slots (the super and a job that runs alone exempt); a file not touched for two minutes is dead, whatever its process id |
+| `package-tests.mjs work/<lane>/<package>` | builder, lane | one package's sealed tests, never the whole suite, in a heavy slot |
+| `sweep.mjs work/<lane>/<package>` | builder, before review reading 1 | four kinds of defect by script, pasted into `3-build.md`; advisory |
+| `merge-main.mjs` | lane, once per candidate | the main branch merged in; generated conflicts settled by its side and the scaffold |
+| `merge-check.mjs [work/<lane>/<package>] [--build-first] [--stop]` | lane, every branch | every step to the end; a record naming the tip and a five-line request |
+| `merge.mjs <branch> [--package work/<lane>/<package>]` | the super | refuses a dirty tree, a check not on the tip, a merge that is not clean; the Merge line, stale modules regenerated, the records, the main branch built |
+
+Each is configured in `factory/harness.json` (`commands`, `mergeCheck`, `lanes`, `generated`, `merge`, `sweep`) and its first lines say how. The failures they hold off are in `templates/lessons.md`.
 
 ## The hooks
 
@@ -60,6 +73,11 @@ The harness generalizes how its first project runs today. Each part is running t
 | Lane rules: long questions in a committed questions file; a lane edits its own modules' designs; fill toward the cap; seal one ahead | Running on one project since 14 November 2026, not yet measured |
 | The step briefs: ready, panel, seam repairs, sealed tests, build, review | Running on one project since 14 November 2026, not yet measured |
 | The slot script: one CI, a few heavy jobs, stale locks taken over | Running on one project since 14 November 2026, not yet measured; this generalized copy is tested here |
+| Slots: heavy tickets first come first served, a lane's share of the heavy slots, a file untouched for two minutes dead | Running on one project since 15 November 2026; the dead-file rule came after a reused process id held 18 jobs behind three free slots, not yet measured since; this generalized copy is tested here |
+| The merge check, the super's merge and a lane's merge of the main branch (`merge-check.mjs`, `merge.mjs`, `merge-main.mjs`) | Running on one project since 15 November 2026 as that project's own scripts, not yet measured; these generalized copies are built and tested here on throwaway repositories, not yet run on a project |
+| One package's sealed tests and the sweep (`package-tests.mjs`, `sweep.mjs`) | Running on one project since 15 November 2026, not yet measured; generalized and tested here, the sweep's four kinds as patterns a project sets |
+| FEWER ROUNDS, ONE BUILDER A MODULE, every branch through the merge check, no chasing main, BUILD FIRST, ALL TESTS ALL FAILURES, the floor exception, one heartbeat that nudges idle lanes | Running on one project since 15 or 16 November 2026, not yet measured |
+| The lessons file | Written here from the first project's commits of 15 to 17 and 22 to 23 November 2026; each row's fix is in a script or a rule |
 | Slots: `ci --alone` and the waiting marker | Running on one project since 14 November 2026, measured once: before it, a CI waiting to run alone was passed by for 18.5 minutes |
 | Slots: run from the main checkout's copy | Running on one project since 14 November 2026, measured once: before it, a worktree's old copy held a CI back about 3 hours |
 | Slots: a log line per job, a 5-second poll, a waiting file per job | Running on one project since 14 November 2026, not yet measured |

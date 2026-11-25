@@ -4,8 +4,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { seal, check } from './seal.mjs';
-import { canStart, state, criteria, sections, buildOrder } from './gate.mjs';
+import { canStart, state, criteria, sections, prove, proofProblems, proofFile, buildOrder } from './gate.mjs';
 import { calls, claudeCall, claudeFolder, report } from './tokens.mjs';
 
 const project = () => {
@@ -17,6 +18,8 @@ const project = () => {
 };
 const item = 'work/01-sign-in';
 const write = (root, text) => fs.writeFileSync(path.join(root, item, 'item.md'), text);
+const GREEN = 'node -e "process.exit(0)"';
+const RED = 'node -e "console.log(\'1 failed\'); process.exit(3)"';
 const ITEM = (review = '', release = '') => `# Sign in\n\n## Criteria\n- A teacher signs in with her email\n- A wrong password is refused\n\n## Seal\n\n## Review\n${review}\n\n## Release\n${release}\n`;
 
 test('a seal holds until a sealed file changes, vanishes or gains a neighbour', () => {
@@ -97,7 +100,11 @@ test('the layered order builds first, then seals the tests, and still refuses re
   assert.equal(state(root, item).next, 'tests');
   assert.equal(canStart(root, item, 'tests').ok, true);
   assert.match(canStart(root, item, 'release').reasons[0], /not sealed/);
-  seal(root, item, ['tests/sealed']);
+  seal(root, item, ['tests/sealed'], new Date(), null, { command: GREEN });
+  // Layered or not, the review waits for the gate's own green run on the seal.
+  assert.equal(state(root, item).next, 'prove');
+  assert.match(canStart(root, item, 'review').reasons[0], /not proven/);
+  assert.equal(prove(root, item).ok, true);
   assert.equal(state(root, item).next, 'review');
   assert.equal(canStart(root, item, 'review').ok, true);
   write(root, ITEM('clear'));
@@ -115,10 +122,16 @@ test('the gate walks an item from tests to done, and stops on a broken seal', ()
   assert.equal(canStart(root, item, 'tests').ok, true);
   assert.equal(state(root, item).next, 'tests');
   assert.match(canStart(root, item, 'build').reasons[0], /not sealed/);
-  seal(root, item, ['tests/sealed']);
+  seal(root, item, ['tests/sealed'], new Date(), null, { command: GREEN });
   assert.equal(canStart(root, item, 'build').ok, true);
   assert.equal(state(root, item).next, 'build');
-  fs.writeFileSync(path.join(root, item, '3-build.md'), 'built\n');
+  // A build note is a claim: the review waits for the gate's own run.
+  fs.writeFileSync(path.join(root, item, '3-build.md'), 'built, all green\n');
+  assert.equal(state(root, item).next, 'prove');
+  assert.match(canStart(root, item, 'review').reasons[0], /not proven: no proof\.json/);
+  assert.match(canStart(root, item, 'release').reasons[0], /not proven/);
+  assert.equal(prove(root, item).ok, true);
+  assert.equal(canStart(root, item, 'review').ok, true);
   assert.equal(state(root, item).next, 'review');
   assert.match(canStart(root, item, 'release').reasons[0], /no review yet/);
   write(root, ITEM('Principle: a failed save is shown as saved (src/save.js:14)'));
@@ -133,6 +146,57 @@ test('the gate walks an item from tests to done, and stops on a broken seal', ()
   assert.equal(state(root, item).next, 'stopped');
   assert.equal(canStart(root, item, 'release').ok, false);
   assert.match(canStart(root, item, 'ship').reasons[0], /unknown step/);
+});
+
+test('the seal keeps the commands, and the gate proves by running them itself', () => {
+  const root = project();
+  write(root, ITEM());
+  seal(root, item, ['tests/sealed']);
+  assert.match(prove(root, item).reasons[0], /names no command/);
+  assert.equal(fs.existsSync(proofFile(root, item)), false);
+  const again = seal(root, item, ['tests/sealed'], new Date(), 'the seal named no command', { command: RED, whole: GREEN });
+  assert.deepEqual(again.reseals[0].changed, ['the sealed command', 'the whole command']);
+  const red = prove(root, item);
+  assert.equal(red.ok, false);
+  assert.match(red.reasons[0], /the sealed command exited 3/);
+  assert.deepEqual(red.record.runs.map((r) => [r.name, r.exitCode]), [['sealed', 3], ['whole', 0]]);
+  assert.match(red.record.runs[0].tail.join(' '), /1 failed/);
+  assert.match(canStart(root, item, 'review').reasons[0], /the proof is red: the sealed command exited 3/);
+  // A reseal that names nothing new keeps the commands; one that changes them makes an old proof stale.
+  const kept = seal(root, item, ['tests/sealed'], new Date(), 'a wrong expected value', {});
+  assert.equal(kept.command, RED);
+  seal(root, item, ['tests/sealed'], new Date(), 'the command was wrong', { command: GREEN });
+  assert.equal(prove(root, item).ok, true);
+  assert.deepEqual(proofProblems(root, item), []);
+  seal(root, item, ['tests/sealed'], new Date(), 'a second fault in the tests', { whole: RED });
+  assert.match(proofProblems(root, item)[0], /the seal changed since the proof/);
+  assert.match(canStart(root, item, 'release').reasons[0], /the seal changed since the proof/);
+});
+
+test('a proof goes stale when the code changes after it, committed or not', () => {
+  const root = project();
+  write(root, ITEM());
+  const g = (...a) => spawnSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@example.com', ...a], { cwd: root, encoding: 'utf8' });
+  if (g('init', '-q').status !== 0) return; // no git on this machine: the commit checks are skipped by the gate too
+  fs.mkdirSync(path.join(root, 'src'));
+  fs.writeFileSync(path.join(root, 'src', 'sign-in.js'), 'export const signIn = () => true;\n');
+  g('add', '-A'); g('commit', '-q', '-m', 'the build');
+  seal(root, item, ['tests/sealed'], new Date(), null, { command: GREEN });
+  const first = prove(root, item);
+  assert.equal(first.ok, true);
+  assert.match(first.record.commit, /^[0-9a-f]{40}$/);
+  assert.equal(first.record.uncommitted, 0);
+  assert.equal(canStart(root, item, 'review').ok, true);
+  // The seal, the proof and the notes live in the work item's folder and do not count as code.
+  fs.writeFileSync(path.join(root, item, '3-build.md'), 'built\n');
+  assert.deepEqual(proofProblems(root, item), []);
+  fs.writeFileSync(path.join(root, 'src', 'sign-in.js'), 'export const signIn = () => false;\n');
+  assert.match(proofProblems(root, item).join(' '), /1 uncommitted changes outside the work item since the proof/);
+  g('add', '-A'); g('commit', '-q', '-m', 'a repair');
+  assert.match(proofProblems(root, item).join(' '), /the code changed since the proof \(1 files\)/);
+  assert.equal(canStart(root, item, 'review').ok, false);
+  assert.equal(prove(root, item).ok, true);
+  assert.equal(canStart(root, item, 'review').ok, true);
 });
 
 const usage = (id, model, day, input, create, read, output) => JSON.stringify({

@@ -25,7 +25,9 @@ Follow `factory/methods/every-step.md`, `factory/methods/test-first.md` and `fac
 
 - Criterion by criterion: a unit test, see it fail, the code, see it pass. Criteria that share one piece of code may share a cycle and a commit.
 - After each fix, run the changed-behavior regressions and small direct contract checks with reviewed exact mappings. Keep compile/type/static, seal, source and boundary checks. Run full sealed/package/project commands at the explicit build-delivery checkpoint, not after each repair.
-- A sealed test that looks wrong is a question, with the file, the line and what the requirement says. Carry on with the other criteria.
+- Solve it yourself: do not look for the answer in the history, in other branches or in copies of the tests.
+- Build to the table under `## Proof` in `item.md` (`factory/methods/proof-table.md`, rule 4). Change neither it nor anything that judges the work: the sealed tests, the test runner's settings, saved snapshots, the pipeline's and the linter's settings. Where one of those must change, name the file and the reason in the note for the reviewer.
+- A sealed test that looks wrong, or that disagrees with its criterion, is a question, with the file, the line and what the requirement says. Do not work around either. Carry on with the other criteria.
 - A failure you cannot explain in one probe goes through `factory/methods/diagnosing.md`.
 - At the end, with everything green, refactor once (`test-first.md`, rule 4).
 
@@ -38,6 +40,7 @@ Follow `factory/methods/every-step.md`, `factory/methods/test-first.md` and `fac
 
 - At build delivery, the required sealed tests' command is green, counted from its output.
 - `node factory/tools/seal.mjs work/NN-words --check` prints `the seal holds`.
+- Everything is committed, and then `node factory/tools/gate.mjs work/NN-words --prove` prints `proven at <commit>`: the gate runs the commands the seal names and keeps the result in `proof.json`. Your note saying green is a claim; the review cannot start without this run, and any commit after it means proving again.
 - The project's whole test command is green at its required build-delivery checkpoint. A targeted repair pass alone is never "done".
 
 ## Commit

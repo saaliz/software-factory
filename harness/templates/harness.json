@@ -17,10 +17,34 @@
     "gate": "node factory/tools/gate.mjs",
     "ci": "<the project's CI command, e.g. node scripts/ci.mjs>",
     "scaffold": "<the skeleton generator, or empty until there is one: factory/harness/interfaces.md>",
-    "contracts": "<the contract tests and integration run, or empty: factory/harness/interfaces.md>"
+    "contracts": "<the contract tests and integration run, or empty: factory/harness/interfaces.md>",
+    "build": "<the build of the whole product, run on the main branch after each merge>",
+    "packageTests": "<one package's sealed tests only: <tests> is the sealed paths, <package> the work item folder>"
+  },
+  "mergeCheck": {
+    "steps": [
+      { "name": "secrets and personal-data scan", "command": "<a scan of tracked files>" },
+      { "name": "sources", "command": "node factory/tools/sources.mjs" },
+      { "name": "the seal holds", "command": "node factory/tools/seal.mjs <package> --check" },
+      { "name": "build", "command": "<the build>" },
+      { "name": "sealed tests build", "command": "<the build of the sealed tests' project, when it is outside the build above>" },
+      { "name": "architecture checks", "command": "<the boundary and static checks>" },
+      { "name": "contract tests and integration run", "command": "<commands.contracts>", "containers": true }
+    ],
+    "modules": "<the folder whose subfolders are the modules the scaffold reads, e.g. docs/design/modules/>",
+    "web": { "path": "<the web app's folder, or empty>", "installed": "node_modules", "install": "npm ci --no-audit --no-fund", "check": "<its type and lint checks>", "tests": "<its tests>" }
+  },
+  "generated": { "paths": ["<a regular expression for a generated path, e.g. /Generated/>"] },
+  "merge": { "prefix": "records", "trailer": "" },
+  "sweep": {
+    "emptyFallback": { "files": "<code files, e.g. \\.cs$>", "call": "<a call to another module's interface, e.g. \\b\\w+Source\\.\\w+Async\\b>", "empty": "<an empty or false fallback, e.g. \\?\\?\\s*(\\[\\]|false\\b)>" },
+    "wordFiles": "<the word (string) files, e.g. (^|/)strings\\.json$>",
+    "catalogue": { "files": "<the files of role and status constants, generated ones included>", "constant": "<captures a constant's name and value, e.g. (\\w+)\\s*=\\s*\"([a-z][a-z -]*)\">", "code": "<code files>" },
+    "builtButDesigned": { "files": "<migration files, e.g. \\.sql$>", "creates": "create table (?:if not exists )?([a-z_]+\\.[a-z_]+)", "design": "<the design files that list tables>", "designed": "<a row still marked designed, {name} the table>" }
   },
   "ciPattern": "<a regular expression that matches the CI command, e.g. scripts/ci\\.mjs>",
-  "slots": { "ci": 1, "heavy": 3 },
+  "slots": { "ci": 1, "heavy": 3, "laneHeavy": 2 },
+  "lanes": { "main": "super", "<the first word of a job label, e.g. a module name>": "<its lane, e.g. A>" },
   "vendors": { "a": "<e.g. Claude>", "b": "<e.g. Codex, or the same vendor in a fresh context>" },
   "sourcesCheck": { "code": ["<the folders of hand-written code, e.g. src/>"], "generatedMarker": "generated", "backlog": "factory/sources-backlog.txt" },
   "services": [{ "name": "<a service every lane needs, e.g. the container engine>", "check": "<a command that answers when it is up>", "restart": "<the steps, in order, that only the super runs>" }],
@@ -28,5 +52,5 @@
   "hooks": { "sealedTests": true, "mainBranch": true, "ciThroughSlot": true, "forbiddenPaths": true, "largeContext": true },
   "largeContextTokens": 250000,
   "heartbeatMinutes": 30,
-  "heartbeat": { "noMergeHours": 2, "ciHungMinutes": 40, "waitHours": 1 }
+  "heartbeat": { "noMergeHours": 2, "ciHungMinutes": 40, "waitHours": 1, "idleLaneMinutes": 60 }
 }

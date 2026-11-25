@@ -2,7 +2,7 @@
 
 ## Adapted in this kit
 
-`core/methods/writing-for-agents.md`, `test-first.md`, `diagnosing.md`, `review.md`, `handoff.md`, `retro.md`, `deep-modules.md` and `questionnaire.md` are adapted, in this kit's own words, from Matt Pocock's skills, `github.com/mattpocock/skills`.
+`core/methods/writing-for-agents.md`, `test-first.md`, `diagnosing.md`, `review.md`, `handoff.md`, `retro.md`, `deep-modules.md` and `questionnaire.md` are adapted, in this kit's own words, from Matt Pocock's skills, `github.com/mattpocock/skills`. One idea in `proof-table.md` (agreeing where the tests go before writing them, with what each catches and misses) is adapted from his `tdd` skill.
 
 ```
 MIT License
