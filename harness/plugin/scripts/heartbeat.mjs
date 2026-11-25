@@ -9,11 +9,13 @@
 //   a job waiting for slots past waitHours (default 1): name its cause
 //   a green CI logged after the last merge: chase its merge
 //   a stale slot (its process gone): stuck
+//   a lane named in factory/harness.json "lanes" with no slot held, no job waiting and no job ended in idleLaneMinutes
+//   (default 60): nudge it, with its next package or what blocks it. One heartbeat, the super's, nudges; lanes run none.
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { list, slotDir, waitingJobs } from './slots.mjs';
+import { laneOf, laneWords, list, slotDir, SUPER, waitingJobs } from './slots.mjs';
 
 const MIN = 60_000, HOUR = 60 * MIN;
 
@@ -23,7 +25,7 @@ function config(cwd) {
 
 export function thresholds(cfg = {}) {
   const h = cfg.heartbeat ?? {};
-  return { noMergeHours: h.noMergeHours ?? 2, ciHungMinutes: h.ciHungMinutes ?? 40, waitHours: h.waitHours ?? 1 };
+  return { noMergeHours: h.noMergeHours ?? 2, ciHungMinutes: h.ciHungMinutes ?? 40, waitHours: h.waitHours ?? 1, idleLaneMinutes: h.idleLaneMinutes ?? 60 };
 }
 
 /** When the main branch last moved, in ms: its newest first-parent commit (a merge, or a commit the super made there). */
@@ -43,7 +45,7 @@ export function jobLog(dir = slotDir()) {
 const ago = (ms) => (ms >= HOUR ? `${(ms / HOUR).toFixed(1)} hours` : `${Math.round(ms / MIN)} minutes`);
 
 /** { ok, findings, stuck } for a project at cwd. Every input can be given, for tests. */
-export function beat(cwd, { now = Date.now(), dir = slotDir(), locks = list({ dir }), waits = waitingJobs({ dir }), log = jobLog(dir), mergeAt, cfg = config(cwd) } = {}) {
+export function beat(cwd, { now = Date.now(), dir = slotDir(), locks = list({ dir }), waits = waitingJobs({ dir }), log = jobLog(dir), mergeAt, cfg = config(cwd), words = laneWords(cwd) } = {}) {
   const t = thresholds(cfg);
   const merged = mergeAt === undefined ? lastMerge(cwd, cfg.mainBranch ?? 'main') : mergeAt;
   const findings = [], stuck = [];
@@ -56,6 +58,13 @@ export function beat(cwd, { now = Date.now(), dir = slotDir(), locks = list({ di
   const green = [...new Set(log.filter((e) => e.kind === 'ci' && e.code === 0 && e.ended && Date.parse(e.ended) > (merged ?? 0)).map((e) => e.label))];
   for (const g of green) findings.push(`green CI ${g}, not merged since: chase its merge`);
   findings.push(...stuck.map((s) => `${s}: stuck`));
+  // Idle lanes: a lane holding no slot, with no job waiting and none ended lately, is nudged by the one heartbeat.
+  const laneOfJob = (j) => j.lane ?? laneOf(j.label, words);
+  for (const lane of [...new Set(Object.values(words))].filter((l) => l !== SUPER).sort()) {
+    const busy = locks.some((l) => l.live && laneOfJob(l) === lane) || waits.some((w) => w.live && laneOfJob(w) === lane);
+    const last = Math.max(0, ...log.filter((e) => laneOfJob(e) === lane && e.ended).map((e) => Date.parse(e.ended)));
+    if (!busy && now - last > t.idleLaneMinutes * MIN) findings.push(`lane ${lane} idle ${last ? `${ago(now - last)} since its last job` : 'with no job in the log'}: nudge it, with its next package or what blocks it`);
+  }
   return { ok: findings.length === 0, findings, sinceMerge: merged ? now - merged : null };
 }
 
