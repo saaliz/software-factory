@@ -78,6 +78,8 @@ node factory/tools/tokens.mjs --by session
 
 A project's scripts write its status as JSON against `core/schemas/` (progress, lanes, pulse, walks, decisions; version 1), and `pm/` shows it: the swimlane board, the pulse with its alarms, progress by module with a burn-up, trends per cut and the decisions waiting on the owner. It is a small read-only Node app run with `docker compose -f pm/compose.yaml up -d --build`, on port 5190; see `pm/README.md`. New on 24 November 2026; its first project is the second project's School ERP.
 
+**Shared status for any factory (proposed, 25 November 2026).** A study of six factories on one machine and about twenty on GitHub found that none of the public ones publishes a status format another tool can write. `proposals/2026-11-25-shared-status.md` proposes one status writer with an adapter per shape of status, and three things to borrow from andon and dark-factory. Not yet run; it waits for the owner.
+
 ## Other authors' skills
 
 The kit copies none. `core/methods/README.md` maps each job to one skill from Addy Osmani's agent-skills and from gstack, and says which to leave off. Eight of the kit's methods are adapted from Matt Pocock's skills; see `THIRD-PARTY.md`.

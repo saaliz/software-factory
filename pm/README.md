@@ -27,7 +27,7 @@ The page reads the files again every 60 seconds, and whenever it comes back into
 
 A new project: add its entry here and its mount to `compose.yaml`, then start again.
 
-Another machine, whose projects are not the ones above: copy `compose.local.example.yaml` to `compose.local.yaml` and `projects.json` to `projects.local.json` (git ignores both), list this machine's projects in them, and start with both files: `docker compose -f pm/compose.yaml -f pm/compose.local.yaml up -d --build`. Mount only the folder that holds a project's status files, not the whole project. A project that keeps its run output somewhere other than `tmp/ci` names that folder in `dataDirs`; the first project writes to `.local/status`.
+Another machine, whose projects are not the ones above: copy `compose.local.example.yaml` to `compose.local.yaml` and `projects.json` to `projects.local.json` (git ignores both), list this machine's projects in them, and start with both files: `docker compose -f pm/compose.yaml -f pm/compose.local.yaml up -d --build`. Mount only the folder that holds a project's status files, not the whole project. A project that keeps its run output somewhere other than `tmp/ci` names that folder in `dataDirs`; the second project writes to `.local/status`.
 
 ## Run
 
