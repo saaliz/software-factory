@@ -1,0 +1,12 @@
+# A machine whose projects differ from projects.json: copy this file to compose.local.yaml and projects.json to
+# projects.local.json (git ignores both), list this machine's projects there, then start with both files:
+#   docker compose -f pm/compose.yaml -f pm/compose.local.yaml up -d --build
+# Volumes merge by their path in the container, so each line below replaces or adds one mount.
+services:
+  pm:
+    volumes:
+      - ./projects.local.json:/app/pm/projects.json:ro
+      # No School ERP on this machine: mount the demo fixture in its place so the base mount does not fail.
+      - ${SCHOOL_ERP_DIR:-./fixtures/demo}:/projects/school-erp:ro
+      # Mount only the folder that holds the status files, read only, under the project's "mount".
+      # - /path/to/project/tmp/ci:/projects/my-project/tmp/ci:ro
