@@ -11,7 +11,7 @@ Each file is one method a skill or a brief names by path. The method holds the s
 | `user-journeys.md` | requirements writers, test writers and whoever signs a release: one journey file drives the end-to-end test, the walkthrough and the trace matrix (`journeys.mjs`) |
 | `factory-line.md` | the orchestrator, and any session that finds a defect made earlier: the stations, a defect goes back to where it was made, when to call the council, and the measures of output, economy and time |
 | `branch-lifecycle.md` | whoever cuts or merges a branch: the ledger, the three ends, and removing a worktree safely (`orphans.mjs`) |
-| `test-first.md` | sealed-test writers (rules 5 to 13) and builders (all) |
+| `test-first.md` | sealed-test writers (rules 5 to 14) and builders (all) |
 | `affected-testing.md` | repair builders and reviewers: exact changed-behavior regressions, direct contracts and separate full checkpoints |
 | `diagnosing.md` | any session given a defect, a flaky test or something slow |
 | `review.md` | every review, and whoever writes a review brief: the two axes, then rounds (one full review at the end, the delta after it, a stated bar) |
@@ -20,6 +20,9 @@ Each file is one method a skill or a brief names by path. The method holds the s
 | `throughput.md` | one session when the rate of criteria proven stalls, or before adding a lane or a machine |
 | `nobody-waits.md` | one session when every lane is busy and little merges, or after the rule for what proves a merge has changed |
 | `parts-not-whole.md` | one session when many work items are released and no journey runs, when reviewed branches pile up beside a held main branch, or before a whole test campaign |
+| `vendor-lane.md` | the orchestrator and a lane driver: a second vendor builds a whole module in its own lane while Claude seals, tests and merges: clone per cut, judging-file check, launcher, measures, Windows notes |
+| `shared-test-database.md` | a tooling session, with several lanes: one test database at the main schema, one seed, a tenant per test (in trial, not yet measured) |
+| `machine-capacity.md` | the orchestrator, before adding a lane or when the machine is slow: heavy-job slots, a cap per lane, a free-RAM floor for lane jobs only |
 | `deep-modules.md` | anyone designing or judging an interface |
 | `questionnaire.md` | questions for the owner or a human expert |
 

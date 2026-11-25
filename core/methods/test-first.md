@@ -16,4 +16,6 @@ Rules 1 to 4 are for builders; rules 5 to 13 for everyone who writes a test.
 12. **Nothing changed on shared test state is left changed:** the clock, switches and fakes are put back.
 13. **A flaky test is set aside the same day** and diagnosed by `diagnosing.md`; it is never retried until green.
 
+14. **A notice's words are sealed.** Any notice, alert or message the work item sends a person, in words of its own, gets a row that quotes the exact words in each language, the template key and its fields, fixed at the seal and not by the builder (proposed from the School ERP trial, 25–26 November 2026; the kit has no proof table of its own, so the rule sits here). The words must be true in every end state the notice can be read in (sent, settled, retried, dead-lettered, unread by its reader), so a word that promises an outcome the code may not reach is refused. In a gendered language such as Arabic the words address the reader neutrally, with no gendered verb or imperative where the reader's gender is not known. The test asserts the words in the language tested; the other languages are held to the row by a check that reads the template catalogue.
+
 Check: every criterion has one sealed test that names it, and a second only under rule 8; every test has been seen to fail.
