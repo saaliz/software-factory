@@ -30,12 +30,12 @@ const released = (root, item) => {
   return rel.length > 0;
 };
 
-/** git worktree list --porcelain as [{ path, branch, detached, prunable }]. */
+/** git worktree list --porcelain as [{ path, branch, detached, prunable }]. The path is in the machine's own form: on Windows git prints C:/a/b, and this gives C:\a\b. */
 export function worktrees(root) {
   const out = [];
   let w = null;
   for (const line of git(root, ['worktree', 'list', '--porcelain']).out.split('\n')) {
-    if (line.startsWith('worktree ')) { w = { path: line.slice(9), branch: null, detached: false, prunable: false }; out.push(w); }
+    if (line.startsWith('worktree ')) { w = { path: path.resolve(line.slice(9)), branch: null, detached: false, prunable: false }; out.push(w); }
     else if (w && line.startsWith('branch ')) w.branch = line.slice(7).replace(/^refs\/heads\//, '');
     else if (w && line === 'detached') w.detached = true;
     else if (w && line.startsWith('prunable')) w.prunable = true;
