@@ -78,6 +78,8 @@ node factory/tools/tokens.mjs --by session
 
 A project's scripts write its status as JSON against `core/schemas/` (progress, lanes, pulse, walks, decisions; version 1), and `pm/` shows it: the swimlane board, the pulse with its alarms, progress by module with a burn-up, trends per cut and the decisions waiting on the owner. It is a small read-only Node app run with `docker compose -f pm/compose.yaml up -d --build`, on port 5190; see `pm/README.md`. New on 24 November 2026; its first project is the second project's School ERP.
 
+**Fewer tokens, better code, cheaper tests (proposed, 25 November 2026).** Settle meaning before the build and let scripts check: examples and counterfactuals at the requirement, a requirements check, tests by risk tier, a sealed-suite score and a token budget per work item. `proposals/2026-11-25-token-quality-testing.md`. Not yet run.
+
 ## Other authors' skills
 
 The kit copies none. `core/methods/README.md` maps each job to one skill from Addy Osmani's agent-skills and from gstack, and says which to leave off. Eight of the kit's methods are adapted from Matt Pocock's skills; see `THIRD-PARTY.md`.
